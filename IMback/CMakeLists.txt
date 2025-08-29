@@ -21,6 +21,7 @@ set(SOURCES
         service/FriendService.cpp
         service/MessageService.cpp
         service/GroupService.cpp
+        service/VideoMeetingService.cpp
 
         apis/SessionApi.cpp
         apis/UserApi.cpp
@@ -39,6 +40,7 @@ set(HEADERS
         service/UserService.h
         service/MessageService.h
         service/GroupService.h
+        service/VideoMeetingService.h
         broadcast/BroadCastThread.h
         broadcast/chatserver.h
         apis/GroupApi.h

@@ -29,6 +29,14 @@ FluWindow {
                 id: footer_items
 
                 FluPaneItem {
+                    title: "视频会议"
+                    icon: FluentIcons.VideoChat
+                    onTap: {
+                        loader_content.sourceComponent = Qt.createComponent("qrc:/FluentChat/ui/view/VideoMeetingView.qml")
+                    }
+                }
+
+                FluPaneItem {
                     title: "设置"
                     icon: FluentIcons.Settings
                     onTap: {

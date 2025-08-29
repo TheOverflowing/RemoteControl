@@ -4,6 +4,7 @@
 #include "global/store.h"
 #include "data/database.h"
 #include "data/net.h"
+#include "data/videomeeting/VideoMeetingManager.h"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
@@ -51,6 +52,9 @@ void test(){
 void inject(QQmlApplicationEngine &engine) {
     auto store = Store::instance();
     store->control()->initConnect();
+
+    // 注册视频会议管理器到QML
+    qmlRegisterType<VideoMeetingManager>("FluentChat.VideoMeeting", 1, 0, "VideoMeetingManager");
 
     //    Control::instance()->init();
 

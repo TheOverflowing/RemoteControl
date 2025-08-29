@@ -8,11 +8,13 @@
 #include "broadcast/chatserver.h"
 #include "broadcast/BroadCastThread.h"
 #include "apis/GroupApi.h"
+#include "service/VideoMeetingService.h"
 #include "utils/utils.h"
 #include <QtHttpServer/QHttpServer>
 
 #define TXPORT 1235
 #define BCPORT 1234
+#define VIDEOPORT 8888
 
 
 void userRouting(QHttpServer &HttpServer, UserApi &userApi);
@@ -62,6 +64,14 @@ int main(int argc, char *argv[]) {
     broadcastThread.start();
     broadcastServer.listen(QHostAddress::Any,bcportArg);
     broadcastServer.moveToThread(&broadcastThread);
+
+    // Setup VideoMeetingService
+    VideoMeetingService videoMeetingService;
+    if (!videoMeetingService.startServer(VIDEOPORT)) {
+        qDebug() << "Failed to start video meeting service on port" << VIDEOPORT;
+    } else {
+        qDebug() << "Video meeting service started on port" << VIDEOPORT;
+    }
 
     // Setup QHttpServer for normal transaction
     QHttpServer httpServer;
