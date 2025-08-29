@@ -2,8 +2,10 @@
 
 基于Qt6的工业远程控制系统，提供安全可靠的远程设备监控和控制功能。
 
-##部署方法
-- git clone --recursive https://github.com/TheOverflowing/RemoteControl.git
+## 部署方法
+
+```git clone --recursive https://github.com/TheOverflowing/RemoteControl.git
+```
 
 ## 项目结构
 
