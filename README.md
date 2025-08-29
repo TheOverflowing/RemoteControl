@@ -4,7 +4,8 @@
 
 ## 部署方法
 
-```git clone --recursive https://github.com/TheOverflowing/RemoteControl.git
+```
+git clone --recursive https://github.com/TheOverflowing/RemoteControl.git
 ```
 
 ## 项目结构
