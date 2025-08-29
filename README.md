@@ -1,6 +1,9 @@
-# Qt6 Remote Control System
+<img width="1960" height="1266" alt="image" src="https://github.com/user-attachments/assets/0867167e-1faf-45ee-90d2-74fa71afdd15" /># Qt6 Remote Control System
 
 基于Qt6的工业远程控制系统，提供安全可靠的远程设备监控和控制功能。
+
+##部署方法
+-git clone --recursive https://github.com/TheOverflowing/RemoteControl.git
 
 ## 项目结构
 
