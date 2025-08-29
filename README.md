@@ -7,7 +7,11 @@
 ```
 git clone --recursive https://github.com/TheOverflowing/RemoteControl.git
 ```
+然后使用Qt Creator打开根目录下的CMakeList.txt即可。启动后程序运行目录下会有fluentchat.ini配置文件和fluentchat.db的sqlite数据库。
 
+这里使用的版本是Qt 6.5.2的MinGW，安装时除了Android和WASM其他基本都选了。
+
+然后服务端，启动！
 ## 项目结构
 
 - **IMback/**: 后端服务，使用Qt6 C++实现
