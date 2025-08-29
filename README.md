@@ -30,7 +30,7 @@ git clone --recursive https://github.com/TheOverflowing/RemoteControl.git
 
 ## 开发环境要求
 
-- Qt 6.x
+- Qt 6.5-6.7,最好就是Qt6.5
 - CMake 3.16+
 - C++17 或更高版本
 - Git
