@@ -49,7 +49,6 @@ Item {
                 }
                 onClicked: {
                     chat_list.currentIndex = _idx
-                    layout_footer.currentIndex = -1
                     store.control.openGroup(model)
                 }
                 Rectangle {
@@ -340,7 +339,6 @@ Item {
                     for (var i = 0; i < store.groupList.items.length; i++) {
                         if (store.groupList.items[i].id === data.key) {
                             chat_list.currentIndex = i
-                            layout_footer.currentIndex = -1
                             store.control.openGroup(store.groupList.items[i])
                             return
                         }
@@ -628,7 +626,7 @@ Item {
             columnSpacing: 2
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 5
-            height: footer_item_height * 2 + 2 // 2行按钮 + 间距（只显示功能按钮）
+            height: footer_item_height * 3 + 4 // 3行按钮 + 间距
 
             // 空置按钮1
             Loader {
@@ -664,13 +662,13 @@ Item {
                 visible: false // 暂时隐藏
             }
 
-            // 空置按钮3
+            // 数据库按钮
             Loader {
                 property var model: QtObject {
-                    property string title: "预留3"
-                    property var icon: FluentIcons.Add
+                    property string title: "工单数据库"
+                    property var icon: FluentIcons.ClipboardList
                     property var tap: function() {
-                        // 空置，后续添加功能
+                        workorder_database_dialog.visible = true
                     }
                 }
                 property var _idx: 2
@@ -678,7 +676,6 @@ Item {
                 sourceComponent: footer_item
                 width: (layout_list.width - 6) / 2
                 height: footer_item_height
-                visible: false // 暂时隐藏
             }
 
             // 空置按钮4
@@ -1156,6 +1153,515 @@ Item {
                 }
             }
         }
+    }
+
+    // 工单数据库对话框
+    Popup {
+        id: workorder_database_dialog
+        modal: true
+        width: 800
+        height: 600
+        visible: false
+        opacity: 0
+        anchors.centerIn: Overlay.overlay
+        background: Rectangle {
+            color: "transparent"
+        }
+        enter: Transition {
+            NumberAnimation {
+                property: "opacity";
+                from: 0.0;
+                to: 1.0
+            }
+        }
+        exit: Transition {
+            NumberAnimation {
+                property: "opacity";
+                from: 1.0;
+                to: 0.0
+            }
+        }
+
+        FluArea {
+            anchors.fill: parent
+            radius: 10
+
+            Column {
+                spacing: 15
+                anchors.fill: parent
+                anchors.margins: 20
+
+                // 标题
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 10
+                    
+                    FluIcon {
+                        iconSource: FluentIcons.ClipboardList
+                        iconSize: 32
+                        iconColor: FluTheme.primaryColor.normal
+                    }
+                    
+                    FluText {
+                        text: "工单数据库"
+                        font: FluTextStyle.TitleLarge
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
+
+                // 搜索筛选区域
+                Row {
+                    width: parent.width
+                    spacing: 10
+
+                    FluTextBox {
+                        id: search_text
+                        width: 200
+                        placeholderText: "搜索工单编号或设备名称"
+                        onTextChanged: {
+                            filterWorkorders()
+                        }
+                    }
+
+                    FluComboBox {
+                        id: status_filter
+                        width: 100
+                        model: ["全部状态", "待处理", "处理中", "已完成", "已关闭"]
+                        currentIndex: 0
+                        onCurrentIndexChanged: {
+                            filterWorkorders()
+                        }
+                    }
+
+                    FluComboBox {
+                        id: urgency_filter
+                        width: 100
+                        model: ["全部级别", "低", "中", "高"]
+                        currentIndex: 0
+                        onCurrentIndexChanged: {
+                            filterWorkorders()
+                        }
+                    }
+
+                    FluDatePicker {
+                        id: date_filter
+                        width: 150
+                        onCurrentChanged: {
+                            filterWorkorders()
+                        }
+                    }
+
+                    FluButton {
+                        text: "重置筛选"
+                        icon: FluentIcons.Refresh
+                        onClicked: {
+                            search_text.text = ""
+                            status_filter.currentIndex = 0
+                            urgency_filter.currentIndex = 0
+                            date_filter.current = null
+                            filterWorkorders()
+                        }
+                    }
+                }
+
+                // 工单列表 - 使用更简单的滚动方案
+                FluArea {
+                    width: parent.width
+                    height: parent.height - 160
+                    radius: 8
+
+                    // 表格容器 - 支持滚动
+                    ScrollView {
+                        id: table_scroll_view
+                        anchors.fill: parent
+                        anchors.margins: 10
+                        
+                        // 水平滚动条
+                        ScrollBar.horizontal: FluScrollBar {
+                            policy: ScrollBar.AsNeeded
+                            visible: table_container.width > table_scroll_view.width
+                        }
+                        
+                        // 垂直滚动条
+                        ScrollBar.vertical: FluScrollBar {
+                            policy: ScrollBar.AsNeeded
+                            visible: table_container.height > table_scroll_view.height
+                        }
+
+                        // 表格内容
+                        Item {
+                            id: table_container
+                            width: 750 // 缩短宽度，适应对话框宽度
+                            height: 40 + workorder_list.count * 60 // 动态高度
+
+                            // 表格头部
+                            Row {
+                                id: table_header
+                                width: parent.width
+                                height: 40
+                                spacing: 15
+
+                                // 工单编号
+                                FluText {
+                                    width: 90
+                                    text: "工单编号"
+                                    font: FluTextStyle.BodyStrong
+                                    color: FluColors.Grey120
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                // 设备信息
+                                FluText {
+                                    width: 130
+                                    text: "设备信息"
+                                    font: FluTextStyle.BodyStrong
+                                    color: FluColors.Grey120
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                // 故障描述
+                                FluText {
+                                    width: 180
+                                    text: "故障描述"
+                                    font: FluTextStyle.BodyStrong
+                                    color: FluColors.Grey120
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                // 状态
+                                FluText {
+                                    width: 70
+                                    text: "状态"
+                                    font: FluTextStyle.BodyStrong
+                                    color: FluColors.Grey120
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                // 紧急程度
+                                FluText {
+                                    width: 70
+                                    text: "紧急程度"
+                                    font: FluTextStyle.BodyStrong
+                                    color: FluColors.Grey120
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                // 创建时间
+                                FluText {
+                                    width: 100
+                                    text: "创建时间"
+                                    font: FluTextStyle.BodyStrong
+                                    color: FluColors.Grey120
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                // 解决时间
+                                FluText {
+                                    width: 110
+                                    text: "解决时间"
+                                    font: FluTextStyle.BodyStrong
+                                    color: FluColors.Grey120
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                            }
+
+                            // 表格数据行
+                            ListView {
+                                id: workorder_list
+                                width: parent.width
+                                height: Math.max(300, count * 60) // 设置最小高度，确保需要滚动
+                                anchors.top: table_header.bottom
+                                model: ListModel {
+                                    id: workorder_model
+                                }
+
+                                delegate: Item {
+                                    width: workorder_list.width
+                                    height: 60
+
+                                    Row {
+                                        width: parent.width
+                                        height: parent.height
+                                        spacing: 15
+
+                                        // 工单编号
+                                        FluText {
+                                            width: 90
+                                            text: model.workorderId
+                                            font: FluTextStyle.Body
+                                            verticalAlignment: Text.AlignVCenter
+                                            elide: Text.ElideRight
+                                        }
+
+                                        // 设备信息
+                                        FluText {
+                                            width: 130
+                                            text: model.deviceInfo
+                                            font: FluTextStyle.Body
+                                            verticalAlignment: Text.AlignVCenter
+                                            elide: Text.ElideRight
+                                        }
+
+                                        // 故障描述
+                                        FluText {
+                                            width: 180
+                                            text: model.faultDesc
+                                            font: FluTextStyle.Body
+                                            verticalAlignment: Text.AlignVCenter
+                                            elide: Text.ElideRight
+                                        }
+
+                                        // 状态
+                                        FluText {
+                                            width: 70
+                                            text: model.status
+                                            font: FluTextStyle.Body
+                                            color: getStatusColor(model.status)
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+
+                                        // 紧急程度
+                                        FluText {
+                                            width: 70
+                                            text: model.urgency
+                                            font: FluTextStyle.Body
+                                            color: getUrgencyColor(model.urgency)
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+
+                                        // 创建时间
+                                        FluText {
+                                            width: 100
+                                            text: model.createTime
+                                            font: FluTextStyle.Body
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+
+                                        // 解决时间
+                                        FluText {
+                                            width: 110
+                                            text: model.resolveTime || "未解决"
+                                            font: FluTextStyle.Body
+                                            color: model.resolveTime ? FluColors.Grey120 : FluColors.Red
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+                                    }
+
+                                    // 分割线
+                                    Rectangle {
+                                        width: parent.width
+                                        height: 1
+                                        color: FluTheme.dark ? Qt.rgba(80/255, 80/255, 80/255, 1) : Qt.rgba(210/255, 210/255, 210/255, 1)
+                                        anchors.bottom: parent.bottom
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 统计信息
+                Row {
+                    width: parent.width
+                    spacing: 15
+
+                    FluText {
+                        text: "总工单数: " + workorder_model.count
+                        font: FluTextStyle.Body
+                    }
+
+                    FluText {
+                        text: "待处理: " + getStatusCount("待处理")
+                        font: FluTextStyle.Body
+                        color: FluColors.Orange
+                    }
+
+                    FluText {
+                        text: "处理中: " + getStatusCount("处理中")
+                        font: FluTextStyle.Body
+                        color: FluColors.Blue
+                    }
+
+                    FluText {
+                        text: "已完成: " + getStatusCount("已完成")
+                        font: FluTextStyle.Body
+                        color: FluColors.Green
+                    }
+                }
+
+                // 关闭按钮
+                FluButton {
+                    text: "关闭"
+                    icon: FluentIcons.ChromeClose
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    onClicked: {
+                        workorder_database_dialog.visible = false
+                    }
+                }
+            }
+        }
+    }
+
+    // 模拟工单数据
+    ListModel {
+        id: original_workorder_data
+        ListElement {
+            workorderId: "WO-2024-001"
+            deviceInfo: "生产线A-注塑机"
+            faultDesc: "温度传感器异常，显示温度不准确"
+            status: "已完成"
+            urgency: "高"
+            createTime: "2024-01-15 08:30"
+            resolveTime: "2024-01-15 14:20"
+        }
+        ListElement {
+            workorderId: "WO-2024-002"
+            deviceInfo: "生产线B-包装机"
+            faultDesc: "传送带卡顿，需要润滑"
+            status: "处理中"
+            urgency: "中"
+            createTime: "2024-01-16 09:15"
+            resolveTime: ""
+        }
+        ListElement {
+            workorderId: "WO-2024-003"
+            deviceInfo: "生产线C-检测设备"
+            faultDesc: "检测精度偏差，需要校准"
+            status: "待处理"
+            urgency: "低"
+            createTime: "2024-01-17 10:45"
+            resolveTime: ""
+        }
+        ListElement {
+            workorderId: "WO-2024-004"
+            deviceInfo: "生产线A-冷却系统"
+            faultDesc: "冷却水循环泵故障"
+            status: "已完成"
+            urgency: "高"
+            createTime: "2024-01-18 11:20"
+            resolveTime: "2024-01-18 16:30"
+        }
+        ListElement {
+            workorderId: "WO-2024-005"
+            deviceInfo: "生产线B-切割机"
+            faultDesc: "切割精度不达标"
+            status: "已关闭"
+            urgency: "中"
+            createTime: "2024-01-19 13:10"
+            resolveTime: "2024-01-19 17:45"
+        }
+        ListElement {
+            workorderId: "WO-2024-006"
+            deviceInfo: "生产线C-加热炉"
+            faultDesc: "加热温度不稳定"
+            status: "待处理"
+            urgency: "高"
+            createTime: "2024-01-20 08:00"
+            resolveTime: ""
+        }
+        ListElement {
+            workorderId: "WO-2024-007"
+            deviceInfo: "生产线A-机械臂"
+            faultDesc: "动作不流畅，需要检修"
+            status: "处理中"
+            urgency: "中"
+            createTime: "2024-01-21 14:30"
+            resolveTime: ""
+        }
+        ListElement {
+            workorderId: "WO-2024-008"
+            deviceInfo: "生产线B-控制系统"
+            faultDesc: "PLC程序异常，需要重启"
+            status: "已完成"
+            urgency: "高"
+            createTime: "2024-01-22 16:20"
+            resolveTime: "2024-01-22 18:10"
+        }
+    }
+
+    // 筛选工单函数
+    function filterWorkorders() {
+        workorder_model.clear()
+        
+        for (var i = 0; i < original_workorder_data.count; i++) {
+            var item = original_workorder_data.get(i)
+            var shouldInclude = true
+            
+            // 文本搜索
+            if (search_text.text) {
+                var searchLower = search_text.text.toLowerCase()
+                if (!item.workorderId.toLowerCase().includes(searchLower) && 
+                    !item.deviceInfo.toLowerCase().includes(searchLower)) {
+                    shouldInclude = false
+                }
+            }
+            
+            // 状态筛选
+            if (status_filter.currentIndex > 0) {
+                var statusText = status_filter.currentText
+                if (item.status !== statusText) {
+                    shouldInclude = false
+                }
+            }
+            
+            // 紧急程度筛选
+            if (urgency_filter.currentIndex > 0) {
+                var urgencyText = urgency_filter.currentText
+                if (item.urgency !== urgencyText) {
+                    shouldInclude = false
+                }
+            }
+            
+            // 日期筛选
+            if (date_filter.current) {
+                var filterDate = date_filter.current.toDateString()
+                var itemDate = new Date(item.createTime).toDateString()
+                if (filterDate !== itemDate) {
+                    shouldInclude = false
+                }
+            }
+            
+            if (shouldInclude) {
+                workorder_model.append(item)
+            }
+        }
+    }
+
+    // 获取状态颜色
+    function getStatusColor(status) {
+        switch (status) {
+            case "待处理": return FluColors.Orange
+            case "处理中": return FluColors.Blue
+            case "已完成": return FluColors.Green
+            case "已关闭": return FluColors.Grey120
+            default: return FluColors.Grey120
+        }
+    }
+
+    // 获取紧急程度颜色
+    function getUrgencyColor(urgency) {
+        switch (urgency) {
+            case "高": return FluColors.Red
+            case "中": return FluColors.Orange
+            case "低": return FluColors.Green
+            default: return FluColors.Grey120
+        }
+    }
+
+    // 获取状态统计
+    function getStatusCount(status) {
+        var count = 0
+        for (var i = 0; i < workorder_model.count; i++) {
+            if (workorder_model.get(i).status === status) {
+                count++
+            }
+        }
+        return count
+    }
+
+    // 初始化工单数据
+    Component.onCompleted: {
+        filterWorkorders()
     }
 
 }
