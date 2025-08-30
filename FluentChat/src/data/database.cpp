@@ -299,3 +299,19 @@ QMap<QString, QString> Database::getFileHashes() {
     return map;
 }
 
+void Database::deleteGroup(int gid) {
+    QSqlQuery query;
+    
+    // 删除群组表中的记录
+    QString deleteGroupQuery = "DELETE FROM `group" + uid + "` WHERE `id` = " + QString::number(gid);
+    if (!query.exec(deleteGroupQuery)) {
+        qDebug() << "Failed to delete group:" << query.lastError().text();
+    }
+    
+    // 删除该群组的所有消息
+    QString deleteMessagesQuery = "DELETE FROM `message` WHERE `gid` = " + QString::number(gid);
+    if (!query.exec(deleteMessagesQuery)) {
+        qDebug() << "Failed to delete messages:" << query.lastError().text();
+    }
+}
+

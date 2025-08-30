@@ -58,6 +58,8 @@ public:
 
     Q_INVOKABLE void setGroupRemark(QString remark);
 
+    Q_INVOKABLE void deleteGroup(int gid);
+
     Q_INVOKABLE void saveBase64File(QString filePath, QString base64);
 
     Q_INVOKABLE void saveP2PFile(int uid,QString savePath, QString fileHash);

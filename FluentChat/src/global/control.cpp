@@ -452,3 +452,23 @@ void Control::cancelP2PFile() {
         clientFileTrans->cancelTrans();
     }
 }
+
+void Control::deleteGroup(int gid) {
+    // 从数据库中删除群组和消息
+    Database::instance()->deleteGroup(gid);
+    
+    // 从内存中移除群组
+    auto groups = Store::instance()->groupList()->items();
+    for (int i = 0; i < groups.size(); i++) {
+        if (groups[i]->id() == gid) {
+            groups.removeAt(i);
+            break;
+        }
+    }
+    Store::instance()->groupList()->setItems(groups);
+    
+    // 如果删除的是当前群组，清空当前群组
+    if (Store::instance()->currentGroup() && Store::instance()->currentGroup()->id() == gid) {
+        Store::instance()->setCurrentGroup(nullptr);
+    }
+}

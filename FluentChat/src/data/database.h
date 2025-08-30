@@ -40,6 +40,8 @@ public:
 
     QMap<QString, QString> getFileHashes(); // 获取所有文件hash
 
+    void deleteGroup(int gid); // 删除群组
+
 private:
     QSqlDatabase db;
 

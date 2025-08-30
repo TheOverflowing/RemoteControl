@@ -580,6 +580,17 @@ FluPage {
                 }
             }
 
+            FluIconButton {
+                id: header_delete_button
+                text: "删除工单"
+                iconSource: FluentIcons.Delete
+                iconColor: FluTheme.dark ? FluColors.Red.lighter : FluColors.Red.dark
+                onClicked: {
+                    if (!store.currentGroup) return
+                    delete_confirm_dialog.visible = true
+                }
+            }
+
         }
 
 
@@ -1350,6 +1361,22 @@ FluPage {
         repeat: false
         onTriggered: {
             tour.open()
+        }
+    }
+
+    // 删除确认对话框
+    FluContentDialog {
+        id: delete_confirm_dialog
+        title: "确认删除"
+        message: "确定要删除这个工单吗？删除后无法恢复。"
+        buttonFlags: FluContentDialogType.NegativeButton | FluContentDialogType.PositiveButton
+        negativeText: "取消"
+        positiveText: "删除"
+        onPositiveClicked: {
+            if (store.currentGroup) {
+                store.control.deleteGroup(store.currentGroup.id)
+                showSuccess("工单删除成功")
+            }
         }
     }
 }
