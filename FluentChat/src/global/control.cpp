@@ -6,6 +6,8 @@
 #include "global/store.h"
 #include <QDateTime>
 #include <QFile>
+#include <QJSValue>
+#include <QTimer>
 
 Control::Control(QObject *parent) : QObject(parent) {
     net = Net::instance();
@@ -256,6 +258,65 @@ void Control::createGroup(const QString &name, const QString &avatar, const QStr
         Net::instance()->loadGroups();
         showSuccess("创建成功");
     });
+}
+
+void Control::scheduleGroup(const QJSValue &scheduleInfo, int delayMinutes) {
+    // 创建定时器，延迟创建群组
+    QTimer *timer = new QTimer(this);
+    timer->setSingleShot(true);
+    
+    // 保存预约信息
+    QString name = scheduleInfo.property("name").toString();
+    QString avatar = scheduleInfo.property("avatar").toString();
+    QString color = scheduleInfo.property("color").toString();
+    QString deviceInfo = scheduleInfo.property("deviceInfo").toString();
+    QString faultDesc = scheduleInfo.property("faultDesc").toString();
+    QString urgency = scheduleInfo.property("urgency").toString();
+    QString scheduleTime = scheduleInfo.property("scheduleTime").toString();
+    
+    // 设置定时器回调
+    QObject::connect(timer, &QTimer::timeout, [=]() {
+        // 延迟时间到后创建群组
+        Net::instance()->createGroup(name, avatar, color, [=]() {
+            Net::instance()->loadGroups();
+            
+            // 获取新创建的群组ID（这里需要等待群组创建完成后再发送消息）
+            QTimer::singleShot(1000, [=]() {
+                // 重新加载群组列表以获取新群组ID
+                Net::instance()->loadGroups();
+                
+                // 再次延迟发送预约信息
+                QTimer::singleShot(500, [=]() {
+                    auto groupList = Store::instance()->groupList();
+                    // 找到最新创建的群组（假设是最后一个）
+                    if (groupList->items().size() > 0) {
+                        auto latestGroup = groupList->items().last();
+                        int gid = latestGroup->id();
+                        
+                        // 发送预约信息到群组
+                        QString message = QString("📋 预约工单信息\n\n"
+                                                "🔧 设备信息：%1\n"
+                                                "🚨 故障描述：%2\n"
+                                                "⚡ 紧急程度：%3\n"
+                                                "📅 预约时间：%4\n\n"
+                                                "工单已创建，请相关人员及时处理。")
+                                                .arg(deviceInfo)
+                                                .arg(faultDesc)
+                                                .arg(urgency)
+                                                .arg(scheduleTime);
+                        
+                        sendMessage(gid, "text", message);
+                    }
+                });
+            });
+        });
+        
+        // 清理定时器
+        timer->deleteLater();
+    });
+    
+    // 启动定时器（延迟分钟转换为毫秒）
+    timer->start(delayMinutes * 60 * 1000);
 }
 
 void Control::updateOnlineStatus() {

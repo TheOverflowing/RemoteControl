@@ -303,6 +303,83 @@ Item {
         color: FluTheme.dark ? Window.active ? Qt.rgba(38 / 255, 44 / 255, 54 / 255, 1) : Qt.rgba(39 / 255, 39 / 255, 39 / 255, 1) : Qt.rgba(251 / 255, 251 / 255, 253 / 255, 1)
         border.color: FluTheme.dark ? Qt.rgba(45 / 255, 45 / 255, 45 / 255, 1) : Qt.rgba(226 / 255, 230 / 255, 234 / 255, 1)
         border.width: 1
+
+        // 发起预约工单按钮 - 位于底部菜单上方
+        Item {
+            id: schedule_button_container
+            width: layout_list.width
+            height: footer_item_height
+            anchors {
+                bottom: layout_footer.top
+            }
+            visible: store.currentUser !== null
+
+            FluControl {
+                id: schedule_button_control
+                anchors {
+                    top: parent.top
+                    bottom: parent.bottom
+                    left: parent.left
+                    right: parent.right
+                    topMargin: 2
+                    bottomMargin: 2
+                    leftMargin: 6
+                    rightMargin: 6
+                }
+                onClicked: {
+                    schedule_group_dialog.visible = true
+                }
+                Rectangle {
+                    radius: 4
+                    anchors.fill: parent
+                    color: {
+                        if (FluTheme.dark) {
+                            if (schedule_button_control.hovered) {
+                                return Qt.rgba(1, 1, 1, 0.03)
+                            }
+                            return Qt.rgba(0, 0, 0, 0)
+                        } else {
+                            if (schedule_button_control.hovered) {
+                                return Qt.rgba(0, 0, 0, 0.03)
+                            }
+                            return Qt.rgba(0, 0, 0, 0)
+                        }
+                    }
+
+                    Item {
+                        id: schedule_button_icon
+                        width: 30
+                        height: 30
+                        anchors {
+                            verticalCenter: parent.verticalCenter
+                            left: parent.left
+                            leftMargin: 3
+                        }
+                        FluIcon {
+                            anchors.centerIn: parent
+                            iconSource: FluentIcons.Calendar
+                            iconSize: 15
+                        }
+                    }
+                    FluText {
+                        id: schedule_button_text
+                        text: "发起预约工单"
+                        elide: Text.ElideRight
+                        color: {
+                            if (schedule_button_control.pressed) {
+                                return FluTheme.dark ? FluColors.Grey80 : FluColors.Grey120
+                            }
+                            return FluTheme.dark ? FluColors.White : FluColors.Grey220
+                        }
+                        anchors {
+                            verticalCenter: parent.verticalCenter
+                            left: schedule_button_icon.right
+                            right: parent.right
+                        }
+                    }
+                }
+            }
+        }
         Item {
             id: layout_header
             width: layout_list.width
@@ -355,6 +432,7 @@ Item {
                 }
                 iconSource: FluentIcons.AddBold
                 iconColor: FluTheme.dark ? FluTheme.primaryColor.lighter : FluTheme.primaryColor.dark
+                visible: store.currentUser !== null
                 onClicked: {
                     add_popup.visible = true
                 }
@@ -433,6 +511,11 @@ Item {
                             {
                                 text: "创建工单", icon: FluentIcons.VideoChat, onClick: () => {
                                     create_group_dialog.visible = true
+                                }
+                            },
+                            {
+                                text: "预约工单", icon: FluentIcons.Calendar, onClick: () => {
+                                    schedule_group_dialog.visible = true
                                 }
                             },
                         ]
@@ -541,7 +624,7 @@ Item {
                 top: layout_header.bottom
                 left: parent.left
                 right: parent.right
-                bottom: layout_footer.top
+                bottom: schedule_button_container.top
             }
             model: chatList.items
             ScrollBar.vertical: FluScrollBar {
@@ -872,6 +955,168 @@ Item {
                             create_group_dialog.visible = false
                         } else {
                             showError("群名不能为空")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Popup {
+        id: schedule_group_dialog
+        modal: true
+        width: 400
+        height: 500
+        visible: false
+        opacity: 0
+        anchors.centerIn: Overlay.overlay
+        background: Rectangle {
+            color: "transparent"
+        }
+        enter: Transition {
+            NumberAnimation {
+                property: "opacity";
+                from: 0.0;
+                to: 1.0
+            }
+        }
+        exit: Transition {
+            NumberAnimation {
+                property: "opacity";
+                from: 1.0;
+                to: 0.0
+            }
+        }
+
+        FluArea {
+            anchors.fill: parent
+            radius: 10
+
+            Column {
+                id: schedule_group_dialog_column
+                spacing: 15
+                anchors.centerIn: parent
+                width: 300
+
+                ChatAvatar {
+                    bgColor: schedule_group_color.colorValue
+                    avatar: schedule_group_avatar.text
+                    online: true
+                    size: 50
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                FluTextBox {
+                    id: schedule_group_name
+                    width: parent.width
+                    placeholderText: "工单名称"
+                }
+
+                FluTextBox {
+                    id: schedule_group_avatar
+                    width: parent.width
+                    placeholderText: "头像字（可为Emoji）"
+                }
+
+                FluColorPicker {
+                    id: schedule_group_color
+                    width: parent.width
+
+                    FluText {
+                        text: "头像色"
+                        color: "white"
+                        anchors.centerIn: parent
+                    }
+
+                    Component.onCompleted: {
+                        schedule_group_color.colorValue = FluTheme.primaryColor.normal
+                    }
+                }
+
+                FluTextBox {
+                    id: schedule_device_info
+                    width: parent.width
+                    placeholderText: "设备信息"
+                }
+
+                FluTextBox {
+                    id: schedule_fault_desc
+                    width: parent.width
+                    placeholderText: "故障描述"
+                }
+
+                Row {
+                    width: parent.width
+                    spacing: 10
+
+                    FluText {
+                        text: "紧急程度："
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    FluComboBox {
+                        id: schedule_urgency
+                        width: 120
+                        model: ["低", "中", "高"]
+                        currentIndex: 1
+                    }
+                }
+
+                Row {
+                    width: parent.width
+                    spacing: 10
+
+                    FluText {
+                        text: "预约时间："
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    FluDatePicker {
+                        id: schedule_date
+                        width: 120
+                        current: new Date()
+                    }
+
+                    FluTimePicker {
+                        id: schedule_time
+                        width: 120
+                        current: new Date()
+                    }
+                }
+
+                FluButton {
+                    text: "预约工单"
+                    width: parent.width
+                    onClicked: {
+                        if (schedule_group_name.text && schedule_device_info.text && schedule_fault_desc.text) {
+                            // 计算延迟时间（10分钟）
+                            var delayMinutes = 10
+
+                            // 获取选中的日期和时间
+                            var scheduleDate = schedule_date.current
+                            var scheduleTime = schedule_time.current
+
+                            // 合并日期和时间
+                            var scheduleDateTime = new Date(scheduleDate)
+                            scheduleDateTime.setHours(scheduleTime.getHours(), scheduleTime.getMinutes(), 0, 0)
+
+                            // 创建预约信息
+                            var scheduleInfo = {
+                                name: schedule_group_name.text,
+                                avatar: schedule_group_avatar.text,
+                                color: schedule_group_color.colorValue,
+                                deviceInfo: schedule_device_info.text,
+                                faultDesc: schedule_fault_desc.text,
+                                urgency: schedule_urgency.currentText,
+                                scheduleTime: scheduleDateTime.toISOString()
+                            }
+
+                            // 调用预约功能
+                            store.control.scheduleGroup(scheduleInfo, delayMinutes)
+                            schedule_group_dialog.visible = false
+                            showSuccess("预约成功，将在审核通过后的预定时间创建工单")
+                        } else {
+                            showError("请填写完整信息")
                         }
                     }
                 }

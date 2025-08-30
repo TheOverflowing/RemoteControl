@@ -54,6 +54,8 @@ public:
 
     Q_INVOKABLE void createGroup(const QString &name, const QString &avatar, const QString &color);
 
+    Q_INVOKABLE void scheduleGroup(const QJSValue &scheduleInfo, int delayMinutes);
+
     Q_INVOKABLE void setGroupRemark(QString remark);
 
     Q_INVOKABLE void saveBase64File(QString filePath, QString base64);
