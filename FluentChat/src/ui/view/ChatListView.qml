@@ -747,6 +747,31 @@ Item {
                 height: footer_item_height
             }
 
+            // 专家功能按钮 - 仅专家用户可见
+            Loader {
+                property var model: QtObject {
+                    property string title: "专家功能"
+                    property var icon: FluentIcons.DeveloperTools
+                    property var tap: function() {
+                        if (footerItems && footerItems.children[3]) {
+                            footerItems.children[3].tap()
+                        }
+                    }
+                }
+                property var _idx: 7
+                property int type: 1
+                sourceComponent: footer_item
+                width: (layout_list.width - 6) / 2
+                height: footer_item_height
+                visible: store.currentUser && store.currentUser.userType === "expert"
+                // 添加调试信息
+                Component.onCompleted: {
+                    console.log("专家按钮加载完成")
+                    console.log("当前用户:", store.currentUser ? store.currentUser.username : "null")
+                    console.log("用户类型:", store.currentUser ? store.currentUser.userType : "null")
+                }
+            }
+
             // 关于按钮
             Loader {
                 property var model: QtObject {
@@ -758,7 +783,7 @@ Item {
                         }
                     }
                 }
-                property var _idx: 7
+                property var _idx: 8
                 property int type: 1
                 sourceComponent: footer_item
                 width: (layout_list.width - 6) / 2
@@ -1253,7 +1278,6 @@ Item {
 
                     FluButton {
                         text: "重置筛选"
-                        icon: FluentIcons.Refresh
                         onClicked: {
                             search_text.text = ""
                             status_filter.currentIndex = 0
@@ -1492,7 +1516,6 @@ Item {
                 // 关闭按钮
                 FluButton {
                     text: "关闭"
-                    icon: FluentIcons.ChromeClose
                     anchors.horizontalCenter: parent.horizontalCenter
                     onClicked: {
                         workorder_database_dialog.visible = false

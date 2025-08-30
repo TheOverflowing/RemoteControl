@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS user(
                       password TEXT,
                       nickname TEXT,
                       color TEXT,
-                      avatar TEXT
+                      avatar TEXT,
+                      user_type TEXT DEFAULT 'normal'
 );
 insert or IGNORE into user (id,username,password,nickname,color,avatar)values(0,'admin','testuse','系统消息',0,'群');
 

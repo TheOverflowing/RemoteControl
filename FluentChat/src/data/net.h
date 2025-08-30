@@ -47,7 +47,7 @@ public:
     void login(const QString &username, const QString &password, const std::function<void(UserModel *)> &callback);
 
     void resgisterUser(const QString &username, const QString &password, const QString &nickname, const QString &color,
-                       const QString &avatar, const std::function<void(UserModel *)> &callback);
+                       const QString &avatar, const QString &expertCode, const std::function<void(UserModel *)> &callback);
 
     void requestUser(QString username, const std::function<void()> &callback);
 

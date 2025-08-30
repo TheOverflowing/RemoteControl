@@ -9,12 +9,13 @@ UserModel::UserModel(QObject *parent)
     m_avatar = "";
     m_remark = "";
     m_online = false;
+    m_userType = "normal";
 }
 
 UserModel::UserModel(int id, const QString &username, const QString &nickname, const QString &color,
                      const QString &avatar, const QString &remark, bool online, QObject *parent)
         : QObject(parent), m_id(id), m_username(username), m_nickname(nickname), m_color(color), m_avatar(avatar),
-          m_remark(remark), m_online(online) {
+          m_remark(remark), m_online(online), m_userType("normal") {
 }
 
 int UserModel::id() const {
@@ -91,5 +92,16 @@ void UserModel::setOnline(bool online) {
     if (m_online != online) {
         m_online = online;
         emit onlineChanged();
+    }
+}
+
+QString UserModel::userType() const {
+    return m_userType;
+}
+
+void UserModel::setUserType(const QString &userType) {
+    if (m_userType != userType) {
+        m_userType = userType;
+        emit userTypeChanged();
     }
 }

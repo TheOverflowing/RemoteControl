@@ -92,6 +92,11 @@ void Net::loadUserFromJson(const QJsonObject &json, UserModel *user) {
     user->setNickname(json["nickname"].toString());
     user->setColor(json["color"].toString());
     user->setAvatar(json["avatar"].toString());
+    if (json.contains("user_type")) {
+        user->setUserType(json["user_type"].toString());
+    } else {
+        user->setUserType("normal"); // 默认为普通用户
+    }
 }
 
 void Net::loadGroupFromJson(const QJsonObject &json, GroupModel *group) {
@@ -242,8 +247,19 @@ void Net::login(const QString &username, const QString &password, const std::fun
     requestJson["password"] = password;
     post("/user/login", QJsonDocument(requestJson), [=](const QJsonDocument &doc) {
         auto json = doc.object();
-        auto uid = json["user"].toObject()["id"].toInt();
-        auto user = Control::instance()->getUsers(QList < int > () << uid)[0];  // 加载用户
+        auto userJson = json["user"].toObject();
+        auto uid = userJson["id"].toInt();
+        
+        // 直接从服务器响应创建用户对象
+        auto user = new UserModel();
+        loadUserFromJson(userJson, user);
+        
+        // 更新Store中的用户信息
+        Store::instance()->users()->insert(uid, user);
+        
+        // 保存用户信息到本地数据库
+        Database::instance()->saveUsers(QList<UserModel *>() << user);
+        
         Store::instance()->setConfig("cookie", json["cookie"].toString());
         Store::instance()->setConfig("loginUid", QString::number(uid));
         Store::instance()->setConfig("loginUsername", username);
@@ -252,17 +268,31 @@ void Net::login(const QString &username, const QString &password, const std::fun
 }
 
 void Net::resgisterUser(const QString &username, const QString &password, const QString &nickname,
-                        const QString &color, const QString &avatar, const std::function<void(UserModel *)> &callback) {
+                        const QString &color, const QString &avatar, const QString &expertCode, const std::function<void(UserModel *)> &callback) {
     QJsonObject requestJson;
     requestJson["username"] = username;
     requestJson["password"] = password;
     requestJson["nickname"] = nickname;
     requestJson["color"] = color;
     requestJson["avatar"] = avatar;
+    if (!expertCode.isEmpty()) {
+        requestJson["expert_code"] = expertCode;
+    }
     post("/user/register", QJsonDocument(requestJson), [=](const QJsonDocument &doc) {
         auto json = doc.object();
-        auto uid = json["user"].toObject()["id"].toInt();
-        auto user = Control::instance()->getUsers(QList < int > () << uid)[0];  // 加载用户
+        auto userJson = json["user"].toObject();
+        auto uid = userJson["id"].toInt();
+        
+        // 直接从服务器响应创建用户对象
+        auto user = new UserModel();
+        loadUserFromJson(userJson, user);
+        
+        // 更新Store中的用户信息
+        Store::instance()->users()->insert(uid, user);
+        
+        // 保存用户信息到本地数据库
+        Database::instance()->saveUsers(QList<UserModel *>() << user);
+        
         Store::instance()->setConfig("cookie", json["cookie"].toString());
         Store::instance()->setConfig("loginUid", QString::number(uid));
         Store::instance()->setConfig("loginUsername", username);

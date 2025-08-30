@@ -38,7 +38,8 @@ void initDatabase(){
     "        password TEXT,\n"
     "        nickname TEXT,\n"
     "        color TEXT,\n"
-    "        avatar TEXT\n"
+    "        avatar TEXT,\n"
+    "        user_type TEXT DEFAULT 'normal'\n"
     ");\n";
 
     /*

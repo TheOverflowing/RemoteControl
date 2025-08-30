@@ -234,8 +234,8 @@ void Control::login(const QString &username, const QString &password) {
 }
 
 void Control::registerUser(const QString &username, const QString &password, const QString &nickname,
-                           const QString &color, const QString &avatar) {
-    Net::instance()->resgisterUser(username, password, nickname, color, avatar, [=](UserModel *user) {
+                           const QString &color, const QString &avatar, const QString &expertCode) {
+    Net::instance()->resgisterUser(username, password, nickname, color, avatar, expertCode, [=](UserModel *user) {
         Store::instance()->setCurrentUser(user);
         init();
         showSuccess("注册成功");

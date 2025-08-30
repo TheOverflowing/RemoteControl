@@ -239,6 +239,12 @@ FluWindow {
             width: parent.width
             placeholderText: "头像字（可为Emoji）"
         }
+        FluTextBox {
+            id: register_expert_code
+            width: parent.width
+            placeholderText: "专家验证码（仅专家用户需要填写）"
+            visible: true
+        }
         FluColorPicker {
             id: register_color
             width: parent.width
@@ -282,7 +288,7 @@ FluWindow {
                     var ori_password = regiter_password.text + salt
                     var hash = Qt.md5(ori_password)
                     store.IP = register_ip.currentText
-                    store.control.registerUser(register_username.text, hash, register_nickname.text, register_color.colorValue, register_avatar.text)
+                    store.control.registerUser(register_username.text, hash, register_nickname.text, register_color.colorValue, register_avatar.text, register_expert_code.text)
                 }
             }
 

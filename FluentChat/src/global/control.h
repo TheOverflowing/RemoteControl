@@ -45,8 +45,8 @@ public:
     Q_INVOKABLE void login(const QString &username, const QString &password);
 
     Q_INVOKABLE void
-    registerUser(const QString &username, const QString &password, const QString &nickname, const QString &color,
-                 const QString &avatar);
+    registerUser(const QString &username, const QString &password, const QString &nickname,
+                     const QString &color, const QString &avatar, const QString &expertCode);
 
     Q_INVOKABLE void requestUser(QString username);
 

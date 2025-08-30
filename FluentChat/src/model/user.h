@@ -14,6 +14,7 @@ Q_OBJECT
     Q_PROPERTY(QString avatar READ avatar WRITE setAvatar NOTIFY avatarChanged)
     Q_PROPERTY(QString remark READ remark WRITE setRemark NOTIFY remarkChanged)
     Q_PROPERTY(bool online READ online WRITE setOnline NOTIFY onlineChanged)
+    Q_PROPERTY(QString userType READ userType WRITE setUserType NOTIFY userTypeChanged)
 
 public:
     explicit UserModel(QObject *parent = nullptr);
@@ -49,6 +50,10 @@ public:
 
     void setOnline(bool online);
 
+    QString userType() const;
+
+    void setUserType(const QString &userType);
+
 signals:
 
     void idChanged();
@@ -65,6 +70,8 @@ signals:
 
     void onlineChanged();
 
+    void userTypeChanged();
+
 private:
     int m_id;
     QString m_username;
@@ -73,6 +80,7 @@ private:
     QString m_avatar;
     QString m_remark;
     bool m_online;
+    QString m_userType;
 };
 
 #endif // MODELUSER_H

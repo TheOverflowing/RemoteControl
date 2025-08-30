@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Window
 import FluentUI
 import "qrc:/FluentChat/ui/view"
+import "qrc:/FluentChat/ui/window"
 
 
 FluWindow {
@@ -51,6 +52,15 @@ FluWindow {
                         loader_content.sourceComponent = Qt.createComponent("qrc:/FluentChat/ui/view/AboutView.qml")
                     }
                 }
+
+                // 专家功能按钮 - 仅专家用户可见
+                FluPaneItem {
+                    title: "专家功能"
+                    icon: FluentIcons.DeveloperTools
+                    onTap: {
+                        loader_content.sourceComponent = Qt.createComponent("../view/ExpertPanel.qml")
+                    }
+                }
             }
         }
 
@@ -64,6 +74,8 @@ FluWindow {
             }
             sourceComponent: Qt.createComponent("qrc:/FluentChat/ui/view/AboutView.qml")
         }
+
+
 
         Connections {
             target: store

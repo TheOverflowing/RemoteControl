@@ -16,6 +16,7 @@ public:
     string nickname;
     string color;
     string avatar;
+    string user_type;
     User();
     User(map<string,string>& userInfo);
     ~User();

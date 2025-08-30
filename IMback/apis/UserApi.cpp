@@ -17,6 +17,10 @@ User::User(map<string,string>& userInfo){
     nickname = userInfo["nickname"];
     color = userInfo["color"];
     avatar = userInfo["avatar"];
+    user_type = userInfo["user_type"];
+    if(user_type.empty()) {
+        user_type = "normal"; // 默认为普通用户
+    }
 }
 
 User::~User() {
@@ -38,7 +42,8 @@ QJsonObject User::toJsonObject(const User& user) {
             {"username", QString::fromStdString(user.username)},
             {"nickname", QString::fromStdString(user.nickname)},
             {"color", QString::fromStdString(user.color)},
-            {"avatar", QString::fromStdString(user.avatar)}
+            {"avatar", QString::fromStdString(user.avatar)},
+            {"user_type", QString::fromStdString(user.user_type)}
     };
     return userObject;
 }
@@ -95,6 +100,23 @@ QHttpServerResponse UserApi:: registerSession(const QHttpServerRequest &request)
     if (userService->isNicknameExists(user.nickname)) {
         return QHttpServerResponse(QJsonObject{{"msg","昵称已存在，请重试"}}, QHttpServerResponder::StatusCode::BadRequest);
     }
+    
+    // 验证专家验证码
+    string expertCode = "";
+    if (json.value().contains("expert_code")) {
+        expertCode = json.value()["expert_code"].toString().toStdString();
+    }
+    
+    if (!expertCode.empty()) {
+        if (expertCode == "1111") {
+            user.user_type = "expert";
+        } else {
+            return QHttpServerResponse(QJsonObject{{"msg","专家验证码错误"}}, QHttpServerResponder::StatusCode::BadRequest);
+        }
+    } else {
+        user.user_type = "normal"; // 默认为普通用户
+    }
+    
     userService->insertUser(user);
     user = userService->selectUserInfoByName(user.username);
     SessionEntry sessionEntry = SessionApi::getInstance()->createEntryAndStart(user.id);

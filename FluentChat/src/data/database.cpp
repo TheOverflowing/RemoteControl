@@ -41,7 +41,8 @@ Database::Database() {
                                "`username` VARCHAR(255) NOT NULL, "
                                "`nickname` VARCHAR(255) NOT NULL, "
                                "`color` VARCHAR(255) NOT NULL, "
-                               "`avatar` VARCHAR(255) NOT NULL)";
+                               "`avatar` VARCHAR(255) NOT NULL, "
+                               "`user_type` VARCHAR(255) DEFAULT 'normal')";
     if (!query.exec(createTableQuery)) {
         qDebug() << "Failed to create table:" << query.lastError().text();
     }
@@ -105,11 +106,11 @@ void Database::setUserId(int userId) {
 void Database::saveUsers(QList<UserModel *> users) {
     if (users.isEmpty())return;
     QSqlQuery query;
-    QString insertQuery = "INSERT OR REPLACE INTO `user` (`id`, `username`, `nickname`, `color`, `avatar`) VALUES ";
+    QString insertQuery = "INSERT OR REPLACE INTO `user` (`id`, `username`, `nickname`, `color`, `avatar`, `user_type`) VALUES ";
     for (auto user: users) {
         insertQuery +=
                 "(" + QString::number(user->id()) + ", '" + user->username() + "', '" + user->nickname() + "', '" +
-                user->color() + "', '" + user->avatar() + "'),";
+                user->color() + "', '" + user->avatar() + "', '" + user->userType() + "'),";
     }
     insertQuery = insertQuery.left(insertQuery.length() - 1);
     if (!query.exec(insertQuery)) {
@@ -139,6 +140,11 @@ QList<UserModel *> Database::loadUsers(QList<UserModel *> users) {
             user->setNickname(query.value(2).toString());
             user->setColor(query.value(3).toString());
             user->setAvatar(query.value(4).toString());
+            if (query.value(5).isValid()) {
+                user->setUserType(query.value(5).toString());
+            } else {
+                user->setUserType("normal"); // 默认为普通用户
+            }
             loadedUsers.append(user);
         }
     }

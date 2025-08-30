@@ -16,14 +16,14 @@ UserService::~UserService() {
 }
 
 bool UserService::insertUser(const User& user) {
-    string sql = "INSERT INTO user(username, password, nickname,avatar,color) VALUES (?, ?, ?,?,?);";
-    bool success = baseDao->executeUpdate(sql, user.username, user.password, user.nickname,user.avatar,user.color);
+    string sql = "INSERT INTO user(username, password, nickname,avatar,color,user_type) VALUES (?, ?, ?,?,?,?);";
+    bool success = baseDao->executeUpdate(sql, user.username, user.password, user.nickname,user.avatar,user.color,user.user_type);
     return success;
 }
 
 User UserService::selectUserInfoByName(const string &username) {
     vector<map<string, string>> rc;
-    string sql = "SELECT id,username, password, nickname,avatar,color FROM user WHERE username = ?;";
+    string sql = "SELECT id,username, password, nickname,avatar,color,user_type FROM user WHERE username = ?;";
     rc = baseDao->executeQuery(sql,username);
     return User(rc[0]);
 }
