@@ -216,7 +216,7 @@ Item {
             clip: true
             height: footer_item_height
             visible: true
-            width: layout_list.width
+            width: parent ? parent.width : layout_list.width
             FluControl {
                 id: item_control
                 anchors {
@@ -231,7 +231,6 @@ Item {
                 }
                 onClicked: {
                     model.tap()
-                    layout_footer.currentIndex = _idx
                     chat_list.currentIndex = -1
                     store.currentGroup = null
                 }
@@ -304,82 +303,7 @@ Item {
         border.color: FluTheme.dark ? Qt.rgba(45 / 255, 45 / 255, 45 / 255, 1) : Qt.rgba(226 / 255, 230 / 255, 234 / 255, 1)
         border.width: 1
 
-        // 发起预约工单按钮 - 位于底部菜单上方
-        Item {
-            id: schedule_button_container
-            width: layout_list.width
-            height: footer_item_height
-            anchors {
-                bottom: layout_footer.top
-            }
-            visible: store.currentUser !== null
-
-            FluControl {
-                id: schedule_button_control
-                anchors {
-                    top: parent.top
-                    bottom: parent.bottom
-                    left: parent.left
-                    right: parent.right
-                    topMargin: 2
-                    bottomMargin: 2
-                    leftMargin: 6
-                    rightMargin: 6
-                }
-                onClicked: {
-                    schedule_group_dialog.visible = true
-                }
-                Rectangle {
-                    radius: 4
-                    anchors.fill: parent
-                    color: {
-                        if (FluTheme.dark) {
-                            if (schedule_button_control.hovered) {
-                                return Qt.rgba(1, 1, 1, 0.03)
-                            }
-                            return Qt.rgba(0, 0, 0, 0)
-                        } else {
-                            if (schedule_button_control.hovered) {
-                                return Qt.rgba(0, 0, 0, 0.03)
-                            }
-                            return Qt.rgba(0, 0, 0, 0)
-                        }
-                    }
-
-                    Item {
-                        id: schedule_button_icon
-                        width: 30
-                        height: 30
-                        anchors {
-                            verticalCenter: parent.verticalCenter
-                            left: parent.left
-                            leftMargin: 3
-                        }
-                        FluIcon {
-                            anchors.centerIn: parent
-                            iconSource: FluentIcons.Calendar
-                            iconSize: 15
-                        }
-                    }
-                    FluText {
-                        id: schedule_button_text
-                        text: "发起预约工单"
-                        elide: Text.ElideRight
-                        color: {
-                            if (schedule_button_control.pressed) {
-                                return FluTheme.dark ? FluColors.Grey80 : FluColors.Grey120
-                            }
-                            return FluTheme.dark ? FluColors.White : FluColors.Grey220
-                        }
-                        anchors {
-                            verticalCenter: parent.verticalCenter
-                            left: schedule_button_icon.right
-                            right: parent.right
-                        }
-                    }
-                }
-            }
-        }
+        // 发起预约工单按钮已移至底部网格布局中
         Item {
             id: layout_header
             width: layout_list.width
@@ -624,7 +548,7 @@ Item {
                 top: layout_header.bottom
                 left: parent.left
                 right: parent.right
-                bottom: schedule_button_container.top
+                bottom: layout_footer.top
             }
             model: chatList.items
             ScrollBar.vertical: FluScrollBar {
@@ -686,52 +610,162 @@ Item {
             }
         }
 
-        // 底部菜单
-        ListView {
+        // 顶部分割线
+        Rectangle {
+            color: FluTheme.dark ? Qt.rgba(80 / 255, 80 / 255, 80 / 255, 1) : Qt.rgba(210 / 255, 210 / 255, 210 / 255, 1)
+            width: layout_list.width
+            height: 1
+            z: -1
+            anchors.bottom: layout_footer.top
+        }
+
+        // 底部菜单 - 改为4行2列网格布局
+        Grid {
             id: layout_footer
-            clip: true
             width: parent.width
-            height: contentHeight
+            columns: 2
+            rowSpacing: 2
+            columnSpacing: 2
             anchors.bottom: parent.bottom
-            boundsBehavior: ListView.StopAtBounds
-            currentIndex: -1
-            model: {
-                if (footerItems) {
-                    return footerItems.children
+            anchors.bottomMargin: 5
+            height: footer_item_height * 2 + 2 // 2行按钮 + 间距（只显示功能按钮）
+
+            // 空置按钮1
+            Loader {
+                property var model: QtObject {
+                    property string title: "预留1"
+                    property var icon: FluentIcons.Add
+                    property var tap: function() {
+                        // 空置，后续添加功能
+                    }
                 }
-            }
-
-            // 顶部分割线
-            header: Rectangle {
-                color: FluTheme.dark ? Qt.rgba(80 / 255, 80 / 255, 80 / 255, 1) : Qt.rgba(210 / 255, 210 / 255, 210 / 255, 1)
-                width: layout_list.width
-                height: 1
-                z: -1
-            }
-
-            delegate: Loader {
-                property var model: modelData
-                property var _idx: index
+                property var _idx: 0
                 property int type: 1
                 sourceComponent: footer_item
+                width: (layout_list.width - 6) / 2
+                height: footer_item_height
+                visible: false // 暂时隐藏
             }
 
-            onCurrentIndexChanged: {
-                if (layout_footer.currentIndex !== -1) {
-                    highlight_clip.clip = false
-                    highlight_rectangle.height = footer_item_height * 0.5
-                    highlight_rectangle.y = layout_footer.y - chat_list.y + layout_footer.currentItem.y + (footer_item_height - footer_item_height * 0.5) / 2
+            // 空置按钮2
+            Loader {
+                property var model: QtObject {
+                    property string title: "预留2"
+                    property var icon: FluentIcons.Add
+                    property var tap: function() {
+                        // 空置，后续添加功能
+                    }
                 }
+                property var _idx: 1
+                property int type: 1
+                sourceComponent: footer_item
+                width: (layout_list.width - 6) / 2
+                height: footer_item_height
+                visible: false // 暂时隐藏
             }
 
-            onYChanged: {
-                if (layout_footer.currentIndex !== -1) {
-                    highlight_clip.clip = false
-                    highlight_rectangle.enableAnimation = false
-                    highlight_rectangle.height = footer_item_height * 0.5
-                    highlight_rectangle.y = layout_footer.y - chat_list.y + layout_footer.currentItem.y + (footer_item_height - footer_item_height * 0.5) / 2
-                    highlight_rectangle.enableAnimation = true
+            // 空置按钮3
+            Loader {
+                property var model: QtObject {
+                    property string title: "预留3"
+                    property var icon: FluentIcons.Add
+                    property var tap: function() {
+                        // 空置，后续添加功能
+                    }
                 }
+                property var _idx: 2
+                property int type: 1
+                sourceComponent: footer_item
+                width: (layout_list.width - 6) / 2
+                height: footer_item_height
+                visible: false // 暂时隐藏
+            }
+
+            // 空置按钮4
+            Loader {
+                property var model: QtObject {
+                    property string title: "预留4"
+                    property var icon: FluentIcons.Add
+                    property var tap: function() {
+                        // 空置，后续添加功能
+                    }
+                }
+                property var _idx: 3
+                property int type: 1
+                sourceComponent: footer_item
+                width: (layout_list.width - 6) / 2
+                height: footer_item_height
+                visible: false // 暂时隐藏
+            }
+
+            // 发起预约工单按钮
+            Loader {
+                property var model: QtObject {
+                    property string title: "发起预约工单"
+                    property var icon: FluentIcons.Calendar
+                    property var tap: function() {
+                        schedule_group_dialog.visible = true
+                    }
+                }
+                property var _idx: 4
+                property int type: 1
+                sourceComponent: footer_item
+                width: (layout_list.width - 6) / 2
+                height: footer_item_height
+            }
+
+            // 视频会议按钮
+            Loader {
+                property var model: QtObject {
+                    property string title: "视频会议"
+                    property var icon: FluentIcons.VideoChat
+                    property var tap: function() {
+                        if (footerItems && footerItems.children[0]) {
+                            footerItems.children[0].tap()
+                        }
+                    }
+                }
+                property var _idx: 5
+                property int type: 1
+                sourceComponent: footer_item
+                width: (layout_list.width - 6) / 2
+                height: footer_item_height
+            }
+
+            // 设置按钮
+            Loader {
+                property var model: QtObject {
+                    property string title: "设置"
+                    property var icon: FluentIcons.Settings
+                    property var tap: function() {
+                        if (footerItems && footerItems.children[1]) {
+                            footerItems.children[1].tap()
+                        }
+                    }
+                }
+                property var _idx: 6
+                property int type: 1
+                sourceComponent: footer_item
+                width: (layout_list.width - 6) / 2
+                height: footer_item_height
+            }
+
+            // 关于按钮
+            Loader {
+                property var model: QtObject {
+                    property string title: "关于"
+                    property var icon: FluentIcons.Contact
+                    property var tap: function() {
+                        if (footerItems && footerItems.children[2]) {
+                            footerItems.children[2].tap()
+                        }
+                    }
+                }
+                property var _idx: 7
+                property int type: 1
+                sourceComponent: footer_item
+                width: (layout_list.width - 6) / 2
+                height: footer_item_height
             }
         }
     }
