@@ -59,6 +59,8 @@ public:
     Q_INVOKABLE void setGroupRemark(QString remark);
 
     Q_INVOKABLE void deleteGroup(int gid);
+    
+    Q_INVOKABLE void refreshGroups();
 
     Q_INVOKABLE void saveBase64File(QString filePath, QString base64);
 

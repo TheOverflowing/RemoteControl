@@ -41,6 +41,8 @@ public:
     QMap<QString, QString> getFileHashes(); // 获取所有文件hash
 
     void deleteGroup(int gid); // 删除群组
+    
+    bool isGroupDeleted(int gid); // 检查群组是否已被删除
 
 private:
     QSqlDatabase db;

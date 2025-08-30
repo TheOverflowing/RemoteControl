@@ -581,6 +581,15 @@ FluPage {
             }
 
             FluIconButton {
+                id: header_refresh_button
+                text: "刷新群组"
+                iconSource: FluentIcons.Refresh
+                onClicked: {
+                    Control.refreshGroups()
+                }
+            }
+
+            FluIconButton {
                 id: header_delete_button
                 text: "删除工单"
                 iconSource: FluentIcons.Delete

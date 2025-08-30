@@ -6,6 +6,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QDebug>
+#include <QDateTime>
 #include "database.h"
 #include "global/store.h"
 
@@ -65,6 +66,15 @@ Database::Database() {
                        "`path` TEXT NOT NULL)";
     if (!query.exec(createTableQuery)) {
         qDebug() << "Failed to create table:" << query.lastError().text();
+    }
+    
+    // 创建已删除群组跟踪表
+    createTableQuery = "CREATE TABLE IF NOT EXISTS `deleted_groups` ("
+                       "`gid` INTEGER NOT NULL PRIMARY KEY, "
+                       "`uid` VARCHAR(255) NOT NULL, "
+                       "`delete_time` INTEGER NOT NULL)";
+    if (!query.exec(createTableQuery)) {
+        qDebug() << "Failed to create deleted_groups table:" << query.lastError().text();
     }
 }
 
@@ -302,16 +312,66 @@ QMap<QString, QString> Database::getFileHashes() {
 void Database::deleteGroup(int gid) {
     QSqlQuery query;
     
-    // 删除群组表中的记录
-    QString deleteGroupQuery = "DELETE FROM `group" + uid + "` WHERE `id` = " + QString::number(gid);
-    if (!query.exec(deleteGroupQuery)) {
-        qDebug() << "Failed to delete group:" << query.lastError().text();
-    }
+    // 开始事务
+    db.transaction();
+    
+    bool success = true;
     
     // 删除该群组的所有消息
     QString deleteMessagesQuery = "DELETE FROM `message` WHERE `gid` = " + QString::number(gid);
     if (!query.exec(deleteMessagesQuery)) {
         qDebug() << "Failed to delete messages:" << query.lastError().text();
+        success = false;
+    } else {
+        qDebug() << "Deleted" << query.numRowsAffected() << "messages for group" << gid;
     }
+    
+    // 删除群组表中的记录
+    QString deleteGroupQuery = "DELETE FROM `group" + uid + "` WHERE `id` = " + QString::number(gid);
+    if (!query.exec(deleteGroupQuery)) {
+        qDebug() << "Failed to delete group:" << query.lastError().text();
+        success = false;
+    } else {
+        qDebug() << "Deleted group" << gid << "from database";
+    }
+    
+    // 记录已删除的群组，防止重新加载
+    QString insertDeletedQuery = "INSERT OR REPLACE INTO `deleted_groups` (`gid`, `uid`, `delete_time`) VALUES (?, ?, ?)";
+    query.prepare(insertDeletedQuery);
+    query.addBindValue(gid);
+    query.addBindValue(uid);
+    query.addBindValue(QDateTime::currentMSecsSinceEpoch() / 1000);
+    if (!query.exec()) {
+        qDebug() << "Failed to record deleted group:" << query.lastError().text();
+        success = false;
+    } else {
+        qDebug() << "Recorded deleted group" << gid << "in tracking table";
+    }
+    
+    // 提交或回滚事务
+    if (success) {
+        if (!db.commit()) {
+            qDebug() << "Failed to commit transaction:" << db.lastError().text();
+            db.rollback();
+        } else {
+            qDebug() << "Successfully deleted group" << gid << "from database";
+        }
+    } else {
+        db.rollback();
+        qDebug() << "Rolled back transaction due to errors";
+    }
+}
+
+bool Database::isGroupDeleted(int gid) {
+    QSqlQuery query;
+    QString selectQuery = "SELECT COUNT(*) FROM `deleted_groups` WHERE `gid` = " + QString::number(gid) + " AND `uid` = '" + uid + "'";
+    if (!query.exec(selectQuery)) {
+        qDebug() << "Failed to check deleted group:" << query.lastError().text();
+        return false;
+    }
+    if (query.next()) {
+        return query.value(0).toInt() > 0;
+    }
+    return false;
 }
 

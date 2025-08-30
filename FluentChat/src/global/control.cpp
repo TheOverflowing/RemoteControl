@@ -41,7 +41,11 @@ void Control::init() {
         if (uid.isEmpty())return;
         Store::instance()->setCurrentUser(getUsers(QList < int > () << uid.toInt()).first());
     }
-    Store::instance()->groupList()->setItems(db->getGroups());
+    // 先从数据库加载群组作为缓存
+    auto localGroups = db->getGroups();
+    Store::instance()->groupList()->setItems(localGroups);
+    
+    // 从网络加载最新群组列表（会自动过滤已删除的群组）
     Net::instance()->loadGroups();
 
     updateOnlineStatus();
@@ -471,4 +475,12 @@ void Control::deleteGroup(int gid) {
     if (Store::instance()->currentGroup() && Store::instance()->currentGroup()->id() == gid) {
         Store::instance()->setCurrentGroup(nullptr);
     }
+    
+    showSuccess("工单删除成功");
+}
+
+void Control::refreshGroups() {
+    // 从网络重新加载群组列表（会自动过滤已删除的群组）
+    Net::instance()->loadGroups();
+    showSuccess("群组列表已刷新");
 }

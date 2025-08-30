@@ -165,11 +165,18 @@ void Net::loadGroups() {
         }
         // 加载用户
         Control::instance()->getUsers(uids);
-        // 加载群组
+        // 加载群组，过滤掉已删除的群组
         for (auto &&json: groupJsonList) {
             auto group = new GroupModel();
             loadGroupFromJson(json, group);
-            groups.append(group);
+            
+            // 检查群组是否已被删除
+            if (!Database::instance()->isGroupDeleted(group->id())) {
+                groups.append(group);
+            } else {
+                qDebug() << "Skipping deleted group:" << group->id();
+                delete group; // 释放内存
+            }
         }
         auto messages = QList < MessageModel * > ();
         for (auto group: groups) {
