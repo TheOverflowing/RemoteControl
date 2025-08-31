@@ -16,7 +16,7 @@ FluPage {
             id: message_text_item
             width: message_view.width - 10 //避开滚动条
             height: {
-                return Math.max(message_text_avatar.height, message_text_rectangle.height + message_text_name.height) + message_text_time.height + 10
+                return Math.max(message_text_avatar.height, message_text_rectangle.height + message_text_name.height) + message_text_time.height + 18
             }
             clip: true
 
@@ -25,7 +25,7 @@ FluPage {
                 bgColor: model.user.color
                 avatar: model.user.avatar
                 online: model.user.online
-                size: 35
+                size: 40
                 anchors {
                     top: parent.top
                     left: isSender ? undefined : parent.left
@@ -39,14 +39,15 @@ FluPage {
                 maximumLineCount: 1
                 horizontalAlignment: isSender ? Text.AlignRight : Text.AlignLeft
                 elide: Text.ElideRight
-                color: FluTheme.dark ? FluColors.Grey100 : FluColors.Grey100
-                font.pixelSize: 12
+                color: FluTheme.dark ? FluColors.Grey120 : FluColors.Grey80
+                font.pixelSize: 13
+                font.bold: true
                 anchors {
                     top: parent.top
                     left: isSender ? message_text_item.left : message_text_avatar.right
-                    leftMargin: 10
+                    leftMargin: 12
                     right: isSender ? message_text_avatar.left : message_text_item.right
-                    rightMargin: 10
+                    rightMargin: 12
                 }
             }
 
@@ -54,23 +55,33 @@ FluPage {
                 id: message_text_rectangle
                 width: {
                     let max_width = message_text_item.width * 0.75
-                    let need_width = message_text_metrics.width + 20
+                    let need_width = message_text_metrics.width + 24
                     return need_width > max_width ? max_width : need_width
                 }
-                height: message_text_content.contentHeight + 20
+                height: message_text_content.contentHeight + 24
                 anchors {
                     top: message_text_name.bottom
-                    topMargin: 5
+                    topMargin: 8
                     left: isSender ? undefined : message_text_avatar.right
-                    leftMargin: 10
+                    leftMargin: 12
                     right: isSender ? message_text_avatar.left : undefined
-                    rightMargin: 10
+                    rightMargin: 12
                 }
-                radius: 10
+                radius: 18
                 color: {
                     if (isSender)
                         return FluTheme.dark ? FluTheme.primaryColor.lighter : FluTheme.primaryColor.dark
-                    return FluTheme.dark ? Window.active ? Qt.rgba(38 / 255, 44 / 255, 54 / 255, 1) : Qt.rgba(39 / 255, 39 / 255, 39 / 255, 1) : Qt.rgba(251 / 255, 251 / 255, 253 / 255, 1)
+                    return FluTheme.dark ? Window.active ? Qt.rgba(38 / 255, 44 / 255, 54 / 255, 1) : Qt.rgba(39 / 255, 39 / 255, 39 / 255, 1) : Qt.rgba(248 / 255, 249 / 255, 250 / 255, 1)
+                }
+                
+                // 添加阴影效果
+                layer.enabled: true
+                layer.effect: DropShadow {
+                    horizontalOffset: 0
+                    verticalOffset: 2
+                    radius: 8.0
+                    samples: 17
+                    color: Qt.rgba(0, 0, 0, 0.1)
                 }
 
                 FluCopyableText {
@@ -78,13 +89,13 @@ FluPage {
                     text: model.content
                     wrapMode: Text.Wrap
                     color: FluTheme.dark ^ isSender ? FluColors.White : FluColors.Black
-                    font.pixelSize: 14
+                    font.pixelSize: 15
                     anchors {
                         top: parent.top
                         left: parent.left
                         right: parent.right
                         bottom: parent.bottom
-                        margins: 10
+                        margins: 12
                     }
                 }
 
@@ -98,12 +109,12 @@ FluPage {
 
             FluText {
                 id: message_text_time
-                text: Qt.formatDateTime(new Date(model.time * 1000), "yyyy-MM-dd hh:mm:ss") + " · #" + model.mid
-                color: FluTheme.dark ? FluColors.Grey120 : FluColors.Grey80
-                font.pixelSize: 10
+                text: Qt.formatDateTime(new Date(model.time * 1000), "MM-dd hh:mm") + " · #" + model.mid
+                color: FluTheme.dark ? FluColors.Grey160 : FluColors.Grey60
+                font.pixelSize: 11
                 anchors {
                     top: message_text_rectangle.bottom
-                    topMargin: 5
+                    topMargin: 6
                     left: isSender ? undefined : message_text_rectangle.left
                     right: isSender ? message_text_rectangle.right : undefined
                 }
@@ -117,7 +128,7 @@ FluPage {
             id: message_image_item
             width: message_view.width - 10 //避开滚动条
             height: {
-                return Math.max(message_image_avatar.height, message_image_rectangle.height + message_image_name.height) + message_image_time.height + 10
+                return Math.max(message_image_avatar.height, message_image_rectangle.height + message_image_name.height) + message_image_time.height + 18
             }
             clip: true
 
@@ -155,14 +166,24 @@ FluPage {
                 id: message_image_rectangle
                 width: 200
                 height: 200
-                radius: [10, 10, 10, 10]
+                radius: [16, 16, 16, 16]
                 anchors {
                     top: message_image_name.bottom
-                    topMargin: 5
+                    topMargin: 8
                     left: isSender ? undefined : message_image_avatar.right
-                    leftMargin: 10
+                    leftMargin: 12
                     right: isSender ? message_image_avatar.left : undefined
-                    rightMargin: 10
+                    rightMargin: 12
+                }
+                
+                // 添加阴影效果
+                layer.enabled: true
+                layer.effect: DropShadow {
+                    horizontalOffset: 0
+                    verticalOffset: 4
+                    radius: 12.0
+                    samples: 17
+                    color: Qt.rgba(0, 0, 0, 0.15)
                 }
                 Image {
                     id: message_image_image
@@ -200,11 +221,11 @@ FluPage {
             FluText {
                 id: message_image_time
                 text: Qt.formatDateTime(new Date(model.time * 1000), "yyyy-MM-dd hh:mm:ss") + " · #" + model.mid
-                color: FluTheme.dark ? FluColors.Grey120 : FluColors.Grey80
+                color: FluTheme.dark ? FluColors.Grey160 : FluColors.Grey60
                 font.pixelSize: 10
                 anchors {
                     top: message_image_rectangle.bottom
-                    topMargin: 5
+                    topMargin: 6
                     left: isSender ? undefined : message_image_rectangle.left
                     right: isSender ? message_image_rectangle.right : undefined
                 }
@@ -218,7 +239,7 @@ FluPage {
             id: message_file_item
             width: message_view.width - 10 //避开滚动条
             height: {
-                return Math.max(message_file_avatar.height, message_file_rectangle.height + message_file_name.height) + message_file_time.height + 10
+                return Math.max(message_file_avatar.height, message_file_rectangle.height + message_file_name.height) + message_file_time.height + 18
             }
             clip: true
 
@@ -256,14 +277,24 @@ FluPage {
                 id: message_file_rectangle
                 width: 250
                 height: 100
-                radius: 10
+                radius: 16
                 anchors {
                     top: message_file_name.bottom
-                    topMargin: 5
+                    topMargin: 8
                     left: isSender ? undefined : message_file_avatar.right
-                    leftMargin: 10
+                    leftMargin: 12
                     right: isSender ? message_file_avatar.left : undefined
-                    rightMargin: 10
+                    rightMargin: 12
+                }
+                
+                // 添加阴影效果
+                layer.enabled: true
+                layer.effect: DropShadow {
+                    horizontalOffset: 0
+                    verticalOffset: 4
+                    radius: 12.0
+                    samples: 17
+                    color: Qt.rgba(0, 0, 0, 0.1)
                 }
 
 
@@ -308,10 +339,12 @@ FluPage {
                     }
                 }
 
-                FluTextButton {
+                FluFilledButton {
                     id: message_file_button
-                    text: "下载"
-                    width: 60
+                    text: "📥 下载"
+                    width: 70
+                    height: 32
+                    font.pixelSize: 12
                     onClicked: {
                         var jsonString = model.content
                         var json = JSON.parse(jsonString)
@@ -321,9 +354,9 @@ FluPage {
                     }
                     anchors {
                         right: parent.right
-                        rightMargin: 10
+                        rightMargin: 12
                         bottom: parent.bottom
-                        bottomMargin: 10
+                        bottomMargin: 12
                     }
                 }
             }
@@ -331,11 +364,11 @@ FluPage {
             FluText {
                 id: message_file_time
                 text: Qt.formatDateTime(new Date(model.time * 1000), "yyyy-MM-dd hh:mm:ss") + " · #" + model.mid
-                color: FluTheme.dark ? FluColors.Grey120 : FluColors.Grey80
+                color: FluTheme.dark ? FluColors.Grey160 : FluColors.Grey60
                 font.pixelSize: 10
                 anchors {
                     top: message_file_rectangle.bottom
-                    topMargin: 5
+                    topMargin: 6
                     left: isSender ? undefined : message_file_rectangle.left
                     right: isSender ? message_file_rectangle.right : undefined
                 }
@@ -366,7 +399,7 @@ FluPage {
             id: message_p2p_file_item
             width: message_view.width - 10 //避开滚动条
             height: {
-                return Math.max(message_p2p_file_avatar.height, message_p2p_file_rectangle.height + message_p2p_file_name.height) + message_p2p_file_time.height + 10
+                return Math.max(message_p2p_file_avatar.height, message_p2p_file_rectangle.height + message_p2p_file_name.height) + message_p2p_file_time.height + 18
             }
             clip: true
 
@@ -404,14 +437,24 @@ FluPage {
                 id: message_p2p_file_rectangle
                 width: 250
                 height: 100
-                radius: 10
+                radius: 16
                 anchors {
                     top: message_p2p_file_name.bottom
-                    topMargin: 5
+                    topMargin: 8
                     left: isSender ? undefined : message_p2p_file_avatar.right
-                    leftMargin: 10
+                    leftMargin: 12
                     right: isSender ? message_p2p_file_avatar.left : undefined
-                    rightMargin: 10
+                    rightMargin: 12
+                }
+                
+                // 添加阴影效果
+                layer.enabled: true
+                layer.effect: DropShadow {
+                    horizontalOffset: 0
+                    verticalOffset: 4
+                    radius: 12.0
+                    samples: 17
+                    color: Qt.rgba(0, 0, 0, 0.1)
                 }
 
 
@@ -456,10 +499,12 @@ FluPage {
                     }
                 }
 
-                FluTextButton {
+                FluFilledButton {
                     id: message_p2p_file_button
-                    text: "下载"
-                    width: 60
+                    text: "📥 下载"
+                    width: 70
+                    height: 32
+                    font.pixelSize: 12
                     onClicked: {
                         var jsonString = model.content
                         var json = JSON.parse(jsonString)
@@ -470,9 +515,9 @@ FluPage {
                     }
                     anchors {
                         right: parent.right
-                        rightMargin: 10
+                        rightMargin: 12
                         bottom: parent.bottom
-                        bottomMargin: 10
+                        bottomMargin: 12
                     }
                 }
             }
@@ -480,11 +525,11 @@ FluPage {
             FluText {
                 id: message_p2p_file_time
                 text: Qt.formatDateTime(new Date(model.time * 1000), "yyyy-MM-dd hh:mm:ss") + " · #" + model.mid
-                color: FluTheme.dark ? FluColors.Grey120 : FluColors.Grey80
+                color: FluTheme.dark ? FluColors.Grey160 : FluColors.Grey60
                 font.pixelSize: 10
                 anchors {
                     top: message_p2p_file_rectangle.bottom
-                    topMargin: 5
+                    topMargin: 6
                     left: isSender ? undefined : message_p2p_file_rectangle.left
                     right: isSender ? message_p2p_file_rectangle.right : undefined
                 }
@@ -512,17 +557,27 @@ FluPage {
     Rectangle {
         id: header
         width: parent.width
-        height: 45
+        height: 60
         z: 1
-        radius: 10
-        color: FluTheme.dark ? Window.active ? Qt.rgba(38 / 255, 44 / 255, 54 / 255, 1) : Qt.rgba(39 / 255, 39 / 255, 39 / 255, 1) : Qt.rgba(251 / 255, 251 / 255, 253 / 255, 1)
+        radius: 12
+        color: FluTheme.dark ? Window.active ? Qt.rgba(38 / 255, 44 / 255, 54 / 255, 1) : Qt.rgba(39 / 255, 39 / 255, 39 / 255, 1) : Qt.rgba(255 / 255, 255 / 255, 255 / 255, 1)
         anchors {
             top: parent.top
-            topMargin: 5
+            topMargin: 8
             left: parent.left
-            leftMargin: 10
+            leftMargin: 12
             right: parent.right
-            rightMargin: 10
+            rightMargin: 12
+        }
+        
+        // 添加阴影效果
+        layer.enabled: true
+        layer.effect: DropShadow {
+            horizontalOffset: 0
+            verticalOffset: 2
+            radius: 8.0
+            samples: 17
+            color: Qt.rgba(0, 0, 0, 0.08)
         }
 
         FluText {
@@ -540,11 +595,12 @@ FluPage {
                 return s
             }
             color: FluTheme.dark ? FluColors.White : FluColors.Black
-            font.pixelSize: 20
+            font.pixelSize: 18
+            font.bold: true
             elide: Text.ElideRight
             anchors {
                 left: parent.left
-                leftMargin: 20
+                leftMargin: 24
                 right: header_button_group.left
                 verticalCenter: parent.verticalCenter
             }
@@ -552,10 +608,10 @@ FluPage {
 
         Row {
             id: header_button_group
-            spacing: 5
+            spacing: 8
             anchors {
                 right: parent.right
-                rightMargin: 20
+                rightMargin: 24
                 verticalCenter: parent.verticalCenter
             }
             FluIconButton {
@@ -607,8 +663,8 @@ FluPage {
             id: info_popup
             modal: true
             visible: false
-            width: 200
-            height: 200
+            width: 280
+            height: 300
             x: parent.width - width
             y: parent.height + 10
             clip: true
@@ -647,8 +703,18 @@ FluPage {
             }
 
             background: FluArea {
-                radius: 10
+                radius: 16
                 border.width: 0
+                
+                // 添加阴影效果
+                layer.enabled: true
+                layer.effect: DropShadow {
+                    horizontalOffset: 0
+                    verticalOffset: 8
+                    radius: 16.0
+                    samples: 17
+                    color: Qt.rgba(0, 0, 0, 0.15)
+                }
             }
 
 
@@ -665,31 +731,32 @@ FluPage {
 
                 header: Item {
                     visible: store.currentGroup && store.currentGroup.type !== "twin"
-                    height: store.currentGroup && store.currentGroup.type !== "twin" ? info_text.height + 20 : 0
+                    height: store.currentGroup && store.currentGroup.type !== "twin" ? info_text.height + 24 : 0
                     width: info_list.width
                     FluText {
                         id: info_text
-                        text: store.currentGroup ? "群号：#" + store.currentGroup.id + "\n群主：" + store.currentGroup.owner.username + "\n人数：" + store.currentGroupUsers.length + "\n群名：" + store.currentGroup.name : ""
+                        text: store.currentGroup ? "📋 群组信息\n\n群号：#" + store.currentGroup.id + "\n群主：" + store.currentGroup.owner.username + "\n人数：" + store.currentGroupUsers.length + "\n群名：" + store.currentGroup.name : ""
                         color: FluTheme.dark ? FluColors.Grey100 : FluColors.Grey100
+                        font.pixelSize: 13
                         wrapMode: Text.WrapAnywhere
                         anchors {
                             left: parent.left
                             right: parent.right
                             top: parent.top
-                            margins: 10
+                            margins: 16
                         }
                     }
                 }
 
                 delegate: Item {
                     width: info_list.width
-                    height: 50
+                    height: 60
                     Rectangle {
                         id: info_item
                         property bool hoverd: false
                         width: parent.width
                         height: parent.height
-                        radius: 10
+                        radius: 12
                         color: hoverd ? (FluTheme.dark ? "#11FFFFFF" : "#11000000") : "transparent"
 
                         MouseArea {
@@ -714,10 +781,10 @@ FluPage {
                             bgColor: modelData.color
                             avatar: modelData.avatar
                             online: modelData.online
-                            size: 30
+                            size: 36
                             anchors {
                                 left: parent.left
-                                leftMargin: 5
+                                leftMargin: 12
                                 verticalCenter: parent.verticalCenter
                             }
                         }
@@ -726,26 +793,27 @@ FluPage {
                             text: modelData.remark ? modelData.remark : modelData.nickname
                             color: FluTheme.dark ? FluColors.White : FluColors.Black
                             font.pixelSize: 14
+                            font.bold: true
                             elide: Text.ElideRight
                             anchors {
                                 left: info_avatar.right
-                                leftMargin: 5
+                                leftMargin: 12
                                 right: parent.right
-                                rightMargin: 5
+                                rightMargin: 12
                                 top: info_avatar.top
                             }
                         }
 
                         FluText {
-                            text: modelData.username
-                            color: FluTheme.dark ? FluColors.Grey100 : FluColors.Grey100
-                            font.pixelSize: 10
+                            text: "@" + modelData.username
+                            color: FluTheme.dark ? FluColors.Grey120 : FluColors.Grey80
+                            font.pixelSize: 11
                             elide: Text.ElideRight
                             anchors {
                                 left: info_avatar.right
-                                leftMargin: 5
+                                leftMargin: 12
                                 right: parent.right
-                                rightMargin: 5
+                                rightMargin: 12
                                 bottom: info_avatar.bottom
                             }
                         }
@@ -771,7 +839,7 @@ FluPage {
         }
         ListView {
             id: message_view
-            spacing: 20
+            spacing: 24
             orientation: ListView.Vertical
             ScrollBar.vertical: FluScrollBar {
             }
@@ -789,7 +857,8 @@ FluPage {
                 height: 60
                 color: "transparent"
                 FluTextButton {
-                    text: store.messageList.hasMore ? "加载更多" : "没有更多了QwQ"
+                    text: store.messageList.hasMore ? "📥 加载更多消息" : "📋 已显示全部消息"
+                    font.pixelSize: 14
                     anchors.centerIn: parent
                     onClicked: {
                         message_view.loading = true
@@ -859,17 +928,27 @@ FluPage {
 
     FluArea {
         id: input_area
-        height: editExpand ? parent.height * 0.5 : 150
-        paddings: 15
-        radius: 10
+        height: editExpand ? parent.height * 0.5 : 160
+        paddings: 20
+        radius: 16
         border.width: 0
         anchors {
             bottom: parent.bottom
             left: parent.left
             right: parent.right
-            leftMargin: 20
-            rightMargin: 20
-            bottomMargin: 10
+            leftMargin: 12
+            rightMargin: 12
+            bottomMargin: 12
+        }
+        
+        // 添加阴影效果
+        layer.enabled: true
+        layer.effect: DropShadow {
+            horizontalOffset: 0
+            verticalOffset: 4
+            radius: 12.0
+            samples: 17
+            color: Qt.rgba(0, 0, 0, 0.1)
         }
 
         property bool editExpand: false
@@ -886,7 +965,7 @@ FluPage {
             width: parent.width
 
             Row {
-                spacing: 5
+                spacing: 8
                 FluIconButton {
                     text: input_area.editExpand ? "还原输入框" : "扩展输入框"
                     iconSource: input_area.editExpand ? FluentIcons.ChevronDown : FluentIcons.ChevronUp
@@ -935,11 +1014,11 @@ FluPage {
             }
 
             Row {
-                spacing: 5
+                spacing: 8
                 Layout.alignment: Qt.AlignRight
                 FluIconButton {
                     iconSource: FluentIcons.Send
-                    iconColor: FluTheme.dark ? FluTheme.primaryColor.lighter : FluTheme.primaryColor.dark
+                    iconColor: "white"
                     onClicked: {
                         input_area.sendMessage()
                     }
@@ -970,10 +1049,11 @@ FluPage {
 
                 FluMultilineTextBox {
                     id: text_box
-                    placeholderText: "Tips：使用Ctrl+Enter换行OvO"
+                    placeholderText: "💬 输入消息内容... (Ctrl+Enter换行)"
                     width: parent.width
                     height: contentHeight + 20 < text_box_container.height ? text_box_container.height : contentHeight + 20
                     padding: 0
+                    font.pixelSize: 14
                     background: Rectangle {
                         color: "transparent"
                     }

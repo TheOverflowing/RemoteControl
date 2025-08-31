@@ -59,6 +59,7 @@ FluPage {
             width: Math.max(parent.width - 40, 400)  // 设置最小宽度并减去边距
             spacing: 20
             anchors.margins: 20
+            anchors.horizontalCenter: parent.horizontalCenter
         
             // 标题
             FluText {

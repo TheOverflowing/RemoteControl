@@ -9,7 +9,7 @@ FluWindow {
     id: page_front
     title: "工业现场远程专家支持系统"
     width: 1200
-    height: 700
+    height: 800
     minimumWidth: 800
     minimumHeight: 600
     visible: true
