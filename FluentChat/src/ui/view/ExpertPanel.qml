@@ -6,7 +6,7 @@ import "."
 
 FluContentPage {
     id: expertPanel
-    title: "专家功能面板"
+    title: "专家控制台 - 工业现场远程支持"
     
     Component.onCompleted: {
         console.log("专家面板加载完成")

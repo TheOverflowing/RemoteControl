@@ -47,30 +47,59 @@ FluPage {
         anchors.margins: 20
         spacing: 20
         
-        // 顶部状态栏
+        // 顶部状态栏 - 工业主题
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 60
-            color: FluTheme.dark ? FluColors.Grey100 : FluColors.Grey100
-            radius: 8
+            Layout.preferredHeight: 70
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: FluTheme.primaryColor.lightest }
+                GradientStop { position: 1.0; color: FluTheme.dark ? FluColors.Grey100 : FluColors.Grey100 }
+            }
+            radius: 12
             
             RowLayout {
                 anchors.fill: parent
-                anchors.margins: 15
+                anchors.margins: 20
+                
+                // 工业图标
+                Rectangle {
+                    width: 40
+                    height: 40
+                    radius: 20
+                    color: FluTheme.primaryColor.normal
+                    
+                    FluText {
+                        text: "📹"
+                        font.pixelSize: 20
+                        anchors.centerIn: parent
+                    }
+                }
                 
                 FluText {
                     id: meetingStatusText
-                    text: inMeeting ? (currentMeetingId ? "会议中 - ID: " + currentMeetingId : "会议中") : "未在会议中"
-                    font.pixelSize: 16
+                    text: inMeeting ? (currentMeetingId ? "远程会议中 - ID: " + currentMeetingId : "远程会议中") : "未在会议中"
+                    font.pixelSize: 18
+                    font.bold: true
                     color: FluTheme.dark ? FluColors.White : FluColors.Black
                 }
                 
                 Item { Layout.fillWidth: true }
                 
+                // 状态指示器
+                Rectangle {
+                    width: 12
+                    height: 12
+                    radius: 6
+                    color: inMeeting ? FluColors.Green : FluColors.Red
+                    border.color: FluTheme.dark ? FluColors.White : FluColors.Black
+                    border.width: 2
+                }
+                
                 FluText {
                     text: inMeeting ? "在线" : "离线"
                     color: inMeeting ? FluColors.Green : FluColors.Red
                     font.pixelSize: 14
+                    font.bold: true
                 }
             }
         }
@@ -154,16 +183,22 @@ FluPage {
             }
         }
         
-        // 控制按钮区域
+        // 控制按钮区域 - 工业主题
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 80
-            color: FluTheme.dark ? FluColors.Grey100 : FluColors.Grey100
-            radius: 8
+            Layout.preferredHeight: 100
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: FluTheme.primaryColor.lightest }
+                GradientStop { position: 1.0; color: FluTheme.dark ? FluColors.Grey100 : FluColors.Grey100 }
+            }
+            radius: 12
+            border.color: FluTheme.primaryColor.normal
+            border.width: 1
+            opacity: 0.9
             
             RowLayout {
                 anchors.centerIn: parent
-                spacing: 15
+                spacing: 20
                 
                 // 摄像头控制
                 FluIconButton {
@@ -233,8 +268,11 @@ FluPage {
                 
                 // 退出会议
                 FluFilledButton {
-                    text: "退出会议"
+                    text: "退出远程会议"
                     enabled: inMeeting
+                    height: 40
+                    font.pixelSize: 14
+                    font.bold: true
                     
                     onClicked: {
                         videoManager.exitMeeting()
@@ -243,22 +281,46 @@ FluPage {
             }
         }
         
-        // 会议操作区域
+        // 会议操作区域 - 工业主题
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 120
-            color: FluTheme.dark ? FluColors.Grey100 : FluColors.Grey100
-            radius: 8
+            Layout.preferredHeight: 140
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: FluTheme.dark ? FluColors.Grey110 : FluColors.Grey90 }
+                GradientStop { position: 1.0; color: FluTheme.dark ? FluColors.Grey100 : FluColors.Grey100 }
+            }
+            radius: 12
+            border.color: FluTheme.primaryColor.normal
+            border.width: 1
+            opacity: 0.8
             
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 15
-                spacing: 10
+                anchors.margins: 20
+                spacing: 15
                 
-                FluText {
-                    text: "会议操作"
-                    font.pixelSize: 16
-                    font.bold: true
+                RowLayout {
+                    spacing: 10
+                    
+                    Rectangle {
+                        width: 30
+                        height: 30
+                        radius: 15
+                        color: FluTheme.primaryColor.normal
+                        
+                        FluText {
+                            text: "⚙️"
+                            font.pixelSize: 16
+                            anchors.centerIn: parent
+                        }
+                    }
+                    
+                    FluText {
+                        text: "远程会议控制台"
+                        font.pixelSize: 18
+                        font.bold: true
+                        color: FluTheme.primaryColor.normal
+                    }
                 }
                 
                 RowLayout {
@@ -266,18 +328,20 @@ FluPage {
                     
                     FluTextBox {
                         id: serverInput
-                        Layout.preferredWidth: 200
-                        placeholderText: "服务器地址"
+                        Layout.preferredWidth: 220
+                        placeholderText: "远程服务器地址"
                         text: "127.0.0.1"
                         enabled: !inMeeting
+                        font.pixelSize: 14
                     }
                     
                     FluTextBox {
                         id: portInput
-                        Layout.preferredWidth: 100
-                        placeholderText: "端口"
+                        Layout.preferredWidth: 120
+                        placeholderText: "服务端口"
                         text: "8888"
                         enabled: !inMeeting
+                        font.pixelSize: 14
                     }
                     
                     FluTextBox {
@@ -285,20 +349,27 @@ FluPage {
                         Layout.preferredWidth: 150
                         placeholderText: "会议ID（可选）"
                         enabled: !inMeeting
+                        font.pixelSize: 14
                     }
                     
-                    FluButton {
-                        text: "创建会议"
+                    FluFilledButton {
+                        text: "创建远程会议"
                         enabled: !inMeeting && serverInput.text !== ""
+                        height: 35
+                        font.pixelSize: 14
+                        font.bold: true
                         
                         onClicked: {
                             videoManager.createMeeting(serverInput.text, parseInt(portInput.text))
                         }
                     }
                     
-                    FluButton {
-                        text: "加入会议"
+                    FluFilledButton {
+                        text: "加入远程会议"
                         enabled: !inMeeting && serverInput.text !== "" && meetingIdInput.text !== ""
+                        height: 35
+                        font.pixelSize: 14
+                        font.bold: true
                         
                         onClicked: {
                             videoManager.joinMeeting(serverInput.text, parseInt(portInput.text), meetingIdInput.text)

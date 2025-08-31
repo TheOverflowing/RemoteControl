@@ -572,7 +572,7 @@ FluPage {
 
             FluIconButton {
                 id: header_info_button
-                text: "关于聊天"
+                text: "关于远程支持"
                 iconSource: FluentIcons.Info
                 iconColor: FluTheme.dark ? FluTheme.primaryColor.lighter : FluTheme.primaryColor.dark
                 onClicked: {
@@ -1344,11 +1344,11 @@ FluPage {
         id: tour
         steps: [
             {
-                title: "聊天名称",
-                description: "这里展示了聊天对象或群名，如果有备注将会显示备注。群聊还会有括号显示群人数。",
+                            title: "支持会话名称",
+            description: "这里展示了远程支持会话的名称，如果有备注将会显示备注。群组支持还会有括号显示参与人数。",
                 target: () => header_title
             },
-            {title: "编辑备注", description: "点击这里可以编辑聊天备注。", target: () => header_edit_button},
+            {title: "编辑备注", description: "点击这里可以编辑支持会话备注。", target: () => header_edit_button},
             {
                 title: "更多信息",
                 description: "点击这里可以查看群聊详情，其中展示了群聊信息、每个成员的昵称、用户名和在线情况等。",
