@@ -55,44 +55,51 @@ FluContentPage {
             // 系统状态卡片
             FluRectangle {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 120
+                Layout.preferredHeight: 140
                 radius: [8, 8, 8, 8]
                 color: FluTheme.dark ? Qt.rgba(1, 1, 1, 0.05) : Qt.rgba(0, 0, 0, 0.02)
                 
                 ColumnLayout {
                     anchors.fill: parent
-                    anchors.margins: 16
+                    anchors.margins: 12
                     
                     FluText {
                         text: "系统状态监控"
-                        font: FluTextStyle.Title
+                        font: FluTextStyle.Subtitle
                         color: FluTheme.primaryColor.normal
                     }
                     
-                    RowLayout {
+                    GridLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        spacing: 20
+                        columns: 4
+                        rowSpacing: 8
+                        columnSpacing: 12
                         
                         // CPU使用率
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 8
+                            Layout.fillHeight: true
+                            spacing: 4
                             
                             FluText {
-                                text: "CPU使用率"
-                                font: FluTextStyle.Body
+                                text: "CPU"
+                                font: FluTextStyle.Caption
+                                horizontalAlignment: Text.AlignHCenter
                             }
                             
                             FluProgressRing {
+                                Layout.alignment: Qt.AlignHCenter
                                 value: systemStatus.cpu / 100
-                                strokeWidth: 8
+                                strokeWidth: 6
+                                width: 50
+                                height: 50
                                 color: systemStatus.cpu > 80 ? "#d13438" : systemStatus.cpu > 60 ? "#ffaa44" : "#107c10"
                                 
                                 FluText {
                                     anchors.centerIn: parent
                                     text: systemStatus.cpu + "%"
-                                    font: FluTextStyle.BodyStrong
+                                    font: FluTextStyle.Caption
                                 }
                             }
                         }
@@ -100,22 +107,27 @@ FluContentPage {
                         // 内存使用率
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 8
+                            Layout.fillHeight: true
+                            spacing: 4
                             
                             FluText {
-                                text: "内存使用率"
-                                font: FluTextStyle.Body
+                                text: "内存"
+                                font: FluTextStyle.Caption
+                                horizontalAlignment: Text.AlignHCenter
                             }
                             
                             FluProgressRing {
+                                Layout.alignment: Qt.AlignHCenter
                                 value: systemStatus.memory / 100
-                                strokeWidth: 8
+                                strokeWidth: 6
+                                width: 50
+                                height: 50
                                 color: systemStatus.memory > 80 ? "#d13438" : systemStatus.memory > 60 ? "#ffaa44" : "#107c10"
                                 
                                 FluText {
                                     anchors.centerIn: parent
                                     text: systemStatus.memory + "%"
-                                    font: FluTextStyle.BodyStrong
+                                    font: FluTextStyle.Caption
                                 }
                             }
                         }
@@ -123,22 +135,27 @@ FluContentPage {
                         // 磁盘使用率
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 8
+                            Layout.fillHeight: true
+                            spacing: 4
                             
                             FluText {
-                                text: "磁盘使用率"
-                                font: FluTextStyle.Body
+                                text: "磁盘"
+                                font: FluTextStyle.Caption
+                                horizontalAlignment: Text.AlignHCenter
                             }
                             
                             FluProgressRing {
+                                Layout.alignment: Qt.AlignHCenter
                                 value: systemStatus.disk / 100
-                                strokeWidth: 8
+                                strokeWidth: 6
+                                width: 50
+                                height: 50
                                 color: systemStatus.disk > 80 ? "#d13438" : systemStatus.disk > 60 ? "#ffaa44" : "#107c10"
                                 
                                 FluText {
                                     anchors.centerIn: parent
                                     text: systemStatus.disk + "%"
-                                    font: FluTextStyle.BodyStrong
+                                    font: FluTextStyle.Caption
                                 }
                             }
                         }
@@ -146,22 +163,27 @@ FluContentPage {
                         // 网络使用率
                         ColumnLayout {
                             Layout.fillWidth: true
-                            spacing: 8
+                            Layout.fillHeight: true
+                            spacing: 4
                             
                             FluText {
-                                text: "网络使用率"
-                                font: FluTextStyle.Body
+                                text: "网络"
+                                font: FluTextStyle.Caption
+                                horizontalAlignment: Text.AlignHCenter
                             }
                             
                             FluProgressRing {
+                                Layout.alignment: Qt.AlignHCenter
                                 value: systemStatus.network / 100
-                                strokeWidth: 8
+                                strokeWidth: 6
+                                width: 50
+                                height: 50
                                 color: systemStatus.network > 80 ? "#d13438" : systemStatus.network > 60 ? "#ffaa44" : "#107c10"
                                 
                                 FluText {
                                     anchors.centerIn: parent
                                     text: systemStatus.network + "%"
-                                    font: FluTextStyle.BodyStrong
+                                    font: FluTextStyle.Caption
                                 }
                             }
                         }
@@ -172,52 +194,57 @@ FluContentPage {
             // 性能指标卡片
             FluRectangle {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 100
+                Layout.preferredHeight: 120
                 radius: [8, 8, 8, 8]
                 color: FluTheme.dark ? Qt.rgba(1, 1, 1, 0.05) : Qt.rgba(0, 0, 0, 0.02)
                 
                 ColumnLayout {
                     anchors.fill: parent
-                    anchors.margins: 16
+                    anchors.margins: 12
                     
                     FluText {
                         text: "性能指标"
-                        font: FluTextStyle.Title
+                        font: FluTextStyle.Subtitle
                         color: FluTheme.primaryColor.normal
                     }
                     
-                    RowLayout {
+                    GridLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        spacing: 20
+                        columns: 4
+                        rowSpacing: 8
+                        columnSpacing: 12
                         
                         Repeater {
                             model: performanceData
                             
                             ColumnLayout {
                                 Layout.fillWidth: true
+                                Layout.fillHeight: true
                                 spacing: 4
                                 
                                 RowLayout {
                                     Layout.fillWidth: true
-                                    spacing: 4
+                                    spacing: 2
                                     
                                     FluText {
                                         text: modelData.name
-                                        font: FluTextStyle.Body
+                                        font: FluTextStyle.Caption
+                                        Layout.fillWidth: true
                                     }
                                     
                                     FluIcon {
                                         iconSource: modelData.trend === "up" ? FluentIcons.CaretUpSolid8 : FluentIcons.CaretDownSolid8
                                         color: modelData.trend === "up" ? "#107c10" : "#d13438"
-                                        iconSize: 12
+                                        iconSize: 10
                                     }
                                 }
                                 
                                 FluText {
                                     text: modelData.value + (modelData.unit ? " " + modelData.unit : "")
-                                    font: FluTextStyle.Title
+                                    font: FluTextStyle.BodyStrong
                                     color: FluTheme.primaryColor.normal
+                                    horizontalAlignment: Text.AlignHCenter
                                 }
                             }
                         }
