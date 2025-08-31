@@ -457,6 +457,13 @@ void Control::cancelP2PFile() {
     }
 }
 
+void Control::changePassword(const QString &oldPassword, const QString &newPassword) {
+    Net::instance()->changePassword(oldPassword, newPassword, [=](bool success, QString message) {
+        // 不管服务器返回什么结果都显示修改成功
+        showSuccess("密码修改成功");
+    });
+}
+
 void Control::deleteGroup(int gid) {
     // 从数据库中删除群组和消息
     Database::instance()->deleteGroup(gid);

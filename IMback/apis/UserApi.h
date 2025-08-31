@@ -40,6 +40,7 @@ public:
 //    QHttpServerResponse logout(const QHttpServerRequest &request);
 
     QHttpServerResponse info(const QHttpServerRequest &request);
+    QHttpServerResponse changePassword(const QHttpServerRequest &request);
     QHttpServerResponse infos(const QHttpServerRequest &request);
     QHttpServerResponse getUserip(const QHttpServerRequest &request);
     QHttpServerResponse onlines(const QHttpServerRequest &request);

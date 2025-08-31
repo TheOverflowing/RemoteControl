@@ -171,7 +171,7 @@ FluPage {
                         FluText {
                             text: store.currentUser ? (store.currentUser.userType === "expert" ? "专家用户" : "普通用户") : "未知"
                             font.pixelSize: 14
-                            color: store.currentUser && store.currentUser.userType === "expert" ? FluColors.Orange : FluColors.Grey
+                            color: store.currentUser && store.currentUser.userType === "expert" ? FluTheme.primaryColor : FluTheme.textColor
                         }
                     }
                     
@@ -183,7 +183,7 @@ FluPage {
                         FluIcon {
                             iconSource: FluentIcons.CircleFill
                             iconSize: 20
-                            color: store.currentUser && store.currentUser.online ? FluColors.Green : FluColors.Grey
+                            color: store.currentUser && store.currentUser.online ? "#4CAF50" : FluTheme.textColor
                         }
                         
                         FluText {
@@ -195,7 +195,7 @@ FluPage {
                         FluText {
                             text: store.currentUser && store.currentUser.online ? "在线" : "离线"
                             font.pixelSize: 14
-                            color: store.currentUser && store.currentUser.online ? FluColors.Green : FluColors.Grey
+                            color: store.currentUser && store.currentUser.online ? "#4CAF50" : FluTheme.textColor
                         }
                     }
                     
@@ -219,8 +219,12 @@ FluPage {
                                         return
                                     }
                                     
-                                    // TODO: 调用后端API更新用户信息
-                                    // store.control.updateUserProfile(usernameInput.text, nicknameInput.text, tempAvatar)
+                                    // 更新用户信息
+                                    if (store.currentUser) {
+                                        store.currentUser.nickname = nicknameInput.text
+                                        store.currentUser.username = usernameInput.text
+                                        store.currentUser.avatar = tempAvatar
+                                    }
                                     
                                     tempNickname = nicknameInput.text
                                     tempUsername = usernameInput.text
@@ -240,6 +244,7 @@ FluPage {
                                 nicknameInput.text = store.currentUser ? store.currentUser.nickname : ""
                                 usernameInput.text = store.currentUser ? store.currentUser.username : ""
                                 tempAvatar = store.currentUser ? store.currentUser.avatar : ""
+                                profileAvatar.avatar = store.currentUser ? store.currentUser.avatar : "👤"
                                 isEditing = false
                             }
                         }
@@ -366,10 +371,9 @@ FluPage {
                                         return
                                     }
                                     
-                                    // TODO: 调用后端API修改密码
-                                    // store.control.changePassword(oldPasswordInput.text, newPasswordInput.text)
+                                    // 调用后端API修改密码
+                                    store.control.changePassword(oldPasswordInput.text, newPasswordInput.text)
                                     
-                                    showSuccess("密码修改成功")
                                     oldPasswordInput.text = ""
                                     newPasswordInput.text = ""
                                     confirmPasswordInput.text = ""
@@ -399,8 +403,8 @@ FluPage {
     // 头像选择对话框
     FluContentDialog {
         id: avatarDialog
-        title: "选择头像"
-        message: "请选择一个表情作为头像"
+        title: ""
+        message: ""
         
         GridView {
             id: avatarGrid
@@ -511,23 +515,32 @@ FluPage {
                 ListElement { avatar: "😾" }
             }
             
-            delegate: Item {
+            delegate: Rectangle {
                 width: avatarGrid.cellWidth
                 height: avatarGrid.cellHeight
+                color: "transparent"
+                radius: 5
+                
+                MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: {
+                        tempAvatar = model.avatar
+                        profileAvatar.avatar = model.avatar
+                        avatarDialog.close()
+                    }
+                    onEntered: {
+                        parent.color = FluTheme.primaryColor.opacity(0.1)
+                    }
+                    onExited: {
+                        parent.color = "transparent"
+                    }
+                }
                 
                 FluText {
                     text: model.avatar
                     font.pixelSize: 30
                     anchors.centerIn: parent
-                    
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            tempAvatar = model.avatar
-                            profileAvatar.avatar = model.avatar
-                            avatarDialog.close()
-                        }
-                    }
                 }
             }
         }

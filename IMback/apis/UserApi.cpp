@@ -184,6 +184,36 @@ QHttpServerResponse UserApi::info(const QHttpServerRequest &request) {
     return QHttpServerResponse("");
 }
 
+QHttpServerResponse UserApi::changePassword(const QHttpServerRequest &request) {
+    // 获取cookie并验证身份
+    auto cookie = getcookieFromRequest(request);
+    auto id = (cookie.has_value()) ?
+               SessionApi::getInstance()->getIdByCookie(QUuid::fromString(cookie.value())) :
+               (std::nullopt);
+    if(!id.has_value())
+        return QHttpServerResponse(QJsonObject{{"msg","身份验证失败"}}, QHttpServerResponder::StatusCode::BadRequest);
+
+    const auto json = byteArrayToJsonObject(request.body());
+    if (!json)
+        return QHttpServerResponse(QJsonObject{{"msg","参数错误"}}, QHttpServerResponder::StatusCode::BadRequest);
+
+    // 解析请求参数
+    auto oldPassword = json.value()["oldPassword"].toString().toStdString();
+    auto newPassword = json.value()["newPassword"].toString().toStdString();
+    
+    if (oldPassword.empty() || newPassword.empty()) {
+        return QHttpServerResponse(QJsonObject{{"msg","旧密码和新密码不能为空"}}, QHttpServerResponder::StatusCode::BadRequest);
+    }
+    
+    // 调用服务层修改密码
+    bool success = userService->changePassword(id.value(), oldPassword, newPassword);
+    if (!success) {
+        return QHttpServerResponse(QJsonObject{{"msg","旧密码不正确或修改失败"}}, QHttpServerResponder::StatusCode::BadRequest);
+    }
+    
+    return QHttpServerResponse(QJsonObject{{"msg","密码修改成功"}});
+}
+
 QHttpServerResponse UserApi::infos(const QHttpServerRequest &request){
     const auto json = byteArrayToJsonObject(request.body());
     if (!json)

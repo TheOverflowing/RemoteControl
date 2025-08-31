@@ -68,6 +68,8 @@ public:
 
     Q_INVOKABLE void cancelP2PFile();
 
+    Q_INVOKABLE void changePassword(const QString &oldPassword, const QString &newPassword);
+
     Q_INVOKABLE QList<QString> getIPs();
 
     QList<UserModel *> getUsers(QList<int> ids); // 加载用户到Users Map 返回的可能会延迟加载

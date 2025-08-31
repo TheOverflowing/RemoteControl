@@ -75,6 +75,22 @@ bool UserService::updateInfo(const int &id,const string &nickname, const string 
     return rc;
 }
 
+bool UserService::changePassword(const int &id, const string &oldPassword, const string &newPassword) {
+    // 首先验证旧密码是否正确
+    vector<map<string, string>> rc;
+    string checkSql = "SELECT password FROM user WHERE id = ? AND password = ?;";
+    rc = baseDao->executeQuery(checkSql, to_string(id), oldPassword);
+    
+    if (rc.empty()) {
+        return false; // 旧密码不正确
+    }
+    
+    // 更新密码
+    string updateSql = "UPDATE user SET password = ? WHERE id = ?;";
+    bool success = baseDao->executeUpdate(updateSql, newPassword, to_string(id));
+    return success;
+}
+
 vector<User> UserService::getUserInfos(const string& uidParams){
     vector<map<string, string>> rc;
     string sql = "SELECT id,username, password, nickname,avatar,color FROM user WHERE id in ("+uidParams+");";

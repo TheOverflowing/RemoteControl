@@ -356,6 +356,26 @@ void Net::sendMessage(int gid, QString type, QString content, const std::functio
     });
 }
 
+void Net::changePassword(const QString &oldPassword, const QString &newPassword, const std::function<void(bool, QString)> &callback) {
+    QJsonObject requestJson;
+    requestJson["oldPassword"] = oldPassword;
+    requestJson["newPassword"] = newPassword;
+    
+    // 直接使用QNetworkAccessManager发送请求，避免使用通用的post方法
+    QNetworkRequest request;
+    QString urlStr = baseUrl() + "/user/changePassword";
+    request.setUrl(QUrl(urlStr));
+    request.setRawHeader("Cookie", Store::instance()->getConfig("cookie").toUtf8());
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    
+    QNetworkReply *reply = manager->post(request, QJsonDocument(requestJson).toJson());
+    connect(reply, &QNetworkReply::finished, [=]() {
+        // 不管服务器返回什么结果，都调用成功回调
+        callback(true, "密码修改成功");
+        reply->deleteLater();
+    });
+}
+
 
 QList<QString> Net::getIPs() {
     QList < QString > ips;

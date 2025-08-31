@@ -210,6 +210,13 @@ void userRouting(QHttpServer &HttpServer, UserApi &userApi){
     );
 
     HttpServer.route(
+            "/user/changePassword", QHttpServerRequest::Method::Post,
+            [&userApi](const QHttpServerRequest &request) {
+                return userApi.changePassword(request);
+            }
+    );
+
+    HttpServer.route(
             "/user/infos", QHttpServerRequest::Method::Post,
             [&userApi](const QHttpServerRequest &request) {
                 return userApi.infos(request);

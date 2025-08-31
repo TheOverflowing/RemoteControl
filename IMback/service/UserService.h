@@ -20,6 +20,7 @@ public:
     bool isNicknameExists(const std::string& nickname);
     User validateUserCredentials(const string& username, const string& password);
     bool updateInfo(const int& id,const string &nickname, const string &color, const string &avatar);
+    bool changePassword(const int& id, const string& oldPassword, const string& newPassword);
     vector<User> getUserInfos(const string& uidParams);
 
 };
