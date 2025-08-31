@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import FluentUI
+import "."
 
 FluContentPage {
     id: expertPanel
@@ -41,6 +42,85 @@ FluContentPage {
         {"name": "错误率", "value": 0.5, "unit": "%", "trend": "down"},
         {"name": "吞吐量", "value": 2.3, "unit": "MB/s", "trend": "up"}
     ]
+
+    // 设备信息数据
+    property var deviceData: [
+        {
+            "id": "DEV-001",
+            "name": "智能生产线A",
+            "type": "自动化生产线",
+            "location": "车间1-区域A",
+            "status": "运行中",
+            "manufacturer": "西门子",
+            "model": "SIMATIC S7-1500",
+            "installDate": "2023-03-15",
+            "lastMaintenance": "2024-01-10",
+            "nextMaintenance": "2024-04-10",
+            "specifications": {
+                "power": "75kW",
+                "speed": "120件/分钟",
+                "accuracy": "±0.1mm",
+                "temperature": "25°C"
+            },
+            "performance": {
+                "efficiency": 94.5,
+                "uptime": 98.2,
+                "quality": 99.1
+            },
+            "image": "qrc:/images/device1.png"
+        },
+        {
+            "id": "DEV-002", 
+            "name": "工业机器人B",
+            "type": "焊接机器人",
+            "location": "车间2-区域B",
+            "status": "待机中",
+            "manufacturer": "ABB",
+            "model": "IRB 2600",
+            "installDate": "2023-06-20",
+            "lastMaintenance": "2024-01-05",
+            "nextMaintenance": "2024-04-05",
+            "specifications": {
+                "power": "45kW",
+                "speed": "80次/分钟",
+                "accuracy": "±0.05mm",
+                "temperature": "28°C"
+            },
+            "performance": {
+                "efficiency": 91.8,
+                "uptime": 96.5,
+                "quality": 98.7
+            },
+            "image": "qrc:/images/device2.png"
+        },
+        {
+            "id": "DEV-003",
+            "name": "数控机床C",
+            "type": "精密加工中心",
+            "location": "车间3-区域C", 
+            "status": "维护中",
+            "manufacturer": "发那科",
+            "model": "FANUC 30i-B",
+            "installDate": "2023-09-10",
+            "lastMaintenance": "2024-01-15",
+            "nextMaintenance": "2024-04-15",
+            "specifications": {
+                "power": "60kW",
+                "speed": "8000rpm",
+                "accuracy": "±0.01mm",
+                "temperature": "22°C"
+            },
+            "performance": {
+                "efficiency": 89.2,
+                "uptime": 94.8,
+                "quality": 99.5
+            },
+            "image": "qrc:/images/device3.png"
+        }
+    ]
+
+    // 知识库查看对话框
+    property bool showDeviceDialog: false
 
     ScrollView {
         anchors.fill: parent
@@ -460,10 +540,12 @@ FluContentPage {
                         color: FluTheme.primaryColor.normal
                     }
                     
-                    RowLayout {
+                    GridLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        spacing: 16
+                        columns: 3
+                        rowSpacing: 12
+                        columnSpacing: 16
                         
                         FluButton {
                             text: "系统重启"
@@ -496,9 +578,227 @@ FluContentPage {
                                 showInfo("生成系统报告（模拟）")
                             }
                         }
+                        
+                        FluButton {
+                            text: "知识库"
+                            icon: FluentIcons.Document
+                            onClicked: {
+                                showDeviceDialog = true
+                            }
+                        }
+                        
+                        FluButton {
+                            text: "系统设置"
+                            icon: FluentIcons.Settings
+                            onClicked: {
+                                showInfo("系统设置功能（模拟）")
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+
+    // 设备信息查看对话框
+    FluContentDialog {
+        id: deviceDialog
+        title: "设备知识库"
+        width: 900
+        height: 700
+        visible: showDeviceDialog
+        
+        onClosed: {
+            showDeviceDialog = false
+        }
+        
+    // 设备详情对话框
+    FluContentDialog {
+        id: deviceDetailDialog
+        width: 1000
+        height: 700
+        property var device: null
+        
+        contentItem: DeviceDetailDialog {
+            device: deviceDetailDialog.device
+        }
+    }
+        
+        contentItem: ColumnLayout {
+            spacing: 16
+            
+            // 搜索栏
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 12
+                
+                FluTextBox {
+                    id: searchBox
+                    placeholderText: "搜索设备名称、型号或位置..."
+                    Layout.fillWidth: true
+                    onTextChanged: {
+                        // 模拟搜索功能
+                        console.log("搜索:", text)
+                    }
+                }
+                
+                FluButton {
+                    text: "搜索"
+                    icon: FluentIcons.Search
+                    onClicked: {
+                        showInfo("搜索功能（模拟）")
+                    }
+                }
+                
+                FluButton {
+                    text: "刷新"
+                    icon: FluentIcons.Refresh
+                    onClicked: {
+                        showSuccess("数据已刷新")
+                    }
+                }
+            }
+            
+            // 设备列表
+            ListView {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                spacing: 12
+                clip: true
+                
+                model: deviceData
+                
+                delegate: FluRectangle {
+                    width: parent.width
+                    height: 200
+                    radius: [8, 8, 8, 8]
+                    color: FluTheme.dark ? Qt.rgba(1, 1, 1, 0.03) : Qt.rgba(0, 0, 0, 0.01)
+                    
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 16
+                        spacing: 16
+                        
+                        // 设备图片
+                        FluRectangle {
+                            Layout.preferredWidth: 120
+                            Layout.preferredHeight: 120
+                            radius: [6, 6, 6, 6]
+                            color: FluTheme.dark ? Qt.rgba(1, 1, 1, 0.05) : Qt.rgba(0, 0, 0, 0.02)
+                            
+                            FluIcon {
+                                anchors.centerIn: parent
+                                iconSource: FluentIcons.Computer
+                                iconSize: 48
+                                color: FluTheme.primaryColor.normal
+                            }
+                        }
+                        
+                        // 设备基本信息
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            spacing: 8
+                            
+                            RowLayout {
+                                Layout.fillWidth: true
+                                
+                                FluText {
+                                    text: modelData.name
+                                    font: FluTextStyle.Title
+                                    color: FluTheme.primaryColor.normal
+                                }
+                                
+                                Item { Layout.fillWidth: true }
+                                
+                                FluRectangle {
+                                    width: 60
+                                    height: 24
+                                    radius: [12, 12, 12, 12]
+                                    color: modelData.status === "运行中" ? "#107c10" : 
+                                           modelData.status === "待机中" ? "#ffaa44" : "#d13438"
+                                    
+                                    FluText {
+                                        anchors.centerIn: parent
+                                        text: modelData.status
+                                        color: "white"
+                                        font: FluTextStyle.Caption
+                                    }
+                                }
+                            }
+                            
+                            FluText {
+                                text: "设备ID: " + modelData.id + " | 类型: " + modelData.type
+                                font: FluTextStyle.Body
+                            }
+                            
+                            FluText {
+                                text: "位置: " + modelData.location + " | 制造商: " + modelData.manufacturer
+                                font: FluTextStyle.Body
+                            }
+                            
+                            FluText {
+                                text: "型号: " + modelData.model + " | 安装日期: " + modelData.installDate
+                                font: FluTextStyle.Body
+                            }
+                            
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 16
+                                
+                                // 性能指标
+                                ColumnLayout {
+                                    spacing: 4
+                                    
+                                    FluText {
+                                        text: "效率: " + modelData.performance.efficiency + "%"
+                                        font: FluTextStyle.Caption
+                                        color: FluTheme.textColor.secondary
+                                    }
+                                    
+                                    FluText {
+                                        text: "运行时间: " + modelData.performance.uptime + "%"
+                                        font: FluTextStyle.Caption
+                                        color: FluTheme.textColor.secondary
+                                    }
+                                    
+                                    FluText {
+                                        text: "质量: " + modelData.performance.quality + "%"
+                                        font: FluTextStyle.Caption
+                                        color: FluTheme.textColor.secondary
+                                    }
+                                }
+                                
+                                Item { Layout.fillWidth: true }
+                                
+                                // 操作按钮
+                                FluButton {
+                                    text: "查看详情"
+                                    icon: FluentIcons.Info
+                                    onClicked: {
+                                        showDeviceDetailDialog(modelData)
+                                    }
+                                }
+                                
+                                FluButton {
+                                    text: "维护记录"
+                                    icon: FluentIcons.History
+                                    onClicked: {
+                                        showInfo("维护记录功能（模拟）")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 设备详情对话框
+    function showDeviceDetailDialog(device) {
+        deviceDetailDialog.device = device
+        deviceDetailDialog.title = device.name + " - 详细信息"
+        deviceDetailDialog.open()
     }
 } 
