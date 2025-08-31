@@ -13,6 +13,8 @@ FluPage {
     property bool cameraOn: videoManager.isCameraOn
     property bool audioOn: videoManager.isAudioOn
     property string currentMeetingId: ""
+    property bool videoRecording: false
+    property bool deviceRecording: false
     
     VideoMeetingManager {
         id: videoManager
@@ -191,6 +193,40 @@ FluPage {
                             videoManager.stopAudio()
                         } else {
                             videoManager.startAudio()
+                        }
+                    }
+                }
+                
+                // 视频录制控制
+                FluIconButton {
+                    iconSource: videoRecording ? FluentIcons.Stop : FluentIcons.Record2
+                    iconSize: 20
+                    text: videoRecording ? "关闭视频录制" : "开启视频录制"
+                    disabled: !inMeeting
+                    
+                    onClicked: {
+                        videoRecording = !videoRecording
+                        if (videoRecording) {
+                            showInfo("已开启视频录制")
+                        } else {
+                            showInfo("已关闭视频录制")
+                        }
+                    }
+                }
+                
+                // 设备信息录制控制
+                FluIconButton {
+                    iconSource: deviceRecording ? FluentIcons.Stop : FluentIcons.Devices
+                    iconSize: 20
+                    text: deviceRecording ? "关闭设备信息录制" : "开启设备信息录制"
+                    disabled: !inMeeting
+                    
+                    onClicked: {
+                        deviceRecording = !deviceRecording
+                        if (deviceRecording) {
+                            showInfo("已开启设备信息录制")
+                        } else {
+                            showInfo("已关闭设备信息录制")
                         }
                     }
                 }
