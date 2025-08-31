@@ -46,10 +46,10 @@ FluWindow {
                 }
 
                 FluPaneItem {
-                    title: "关于"
+                    title: "个人信息"
                     icon: FluentIcons.Contact
                     onTap: {
-                        loader_content.sourceComponent = Qt.createComponent("qrc:/FluentChat/ui/view/AboutView.qml")
+                        loader_content.sourceComponent = Qt.createComponent("qrc:/FluentChat/ui/view/ProfileView.qml")
                     }
                 }
 
@@ -72,7 +72,7 @@ FluWindow {
                 right: parent.right
                 bottom: parent.bottom
             }
-            sourceComponent: Qt.createComponent("qrc:/FluentChat/ui/view/AboutView.qml")
+            // 默认不加载任何页面，保持空白
         }
 
 

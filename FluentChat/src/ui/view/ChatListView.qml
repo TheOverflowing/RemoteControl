@@ -772,10 +772,10 @@ Item {
                 }
             }
 
-            // 关于按钮
+            // 个人信息按钮
             Loader {
                 property var model: QtObject {
-                    property string title: "关于"
+                    property string title: "个人信息"
                     property var icon: FluentIcons.Contact
                     property var tap: function() {
                         if (footerItems && footerItems.children[2]) {
